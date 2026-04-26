@@ -13,14 +13,14 @@ import {
 
 export default function ResultScreen() {
   const router = useRouter();
-  const { currentCreation } = useCreation();
+  const { currentCreation, saveCurrentCreation } = useCreation();
 
   const handleRegenerate = () => {
     console.log("Regenerate creation");
   };
 
-  const handleSave = () => {
-    console.log("Save creation");
+  const handleSave = async () => {
+    await saveCurrentCreation();
   };
 
   if (!currentCreation) {
