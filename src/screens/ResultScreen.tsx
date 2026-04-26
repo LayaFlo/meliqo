@@ -15,10 +15,6 @@ export default function ResultScreen() {
   const router = useRouter();
   const { currentCreation } = useCreation();
 
-  const handleEdit = () => {
-    console.log("Edit creation");
-  };
-
   const handleRegenerate = () => {
     console.log("Regenerate creation");
   };
@@ -88,7 +84,7 @@ export default function ResultScreen() {
           <Button
             testID="action-button"
             mode="contained"
-            onPress={handleEdit}
+            onPress={() => router.push("/edit")}
             style={styles.primaryButton}
             contentStyle={styles.buttonContent}
           >

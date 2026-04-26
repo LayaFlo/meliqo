@@ -6,10 +6,12 @@ import React from "react";
 
 const mockBack = jest.fn();
 const mockReplace = jest.fn();
+const mockPush = jest.fn();
 jest.mock("expo-router", () => ({
   useRouter: () => ({
     back: mockBack,
     replace: mockReplace,
+    push: mockPush,
   }),
 }));
 
@@ -48,6 +50,7 @@ describe("ResultScreen", () => {
   beforeEach(() => {
     mockBack.mockClear();
     mockReplace.mockClear();
+    mockPush.mockClear();
   });
 
   describe("when no creation exists", () => {
@@ -111,6 +114,17 @@ describe("ResultScreen", () => {
         expect(screen.getByText("Regenerate")).toBeTruthy();
         expect(screen.getByText("Save")).toBeTruthy();
       });
+    });
+
+    it("should navigate to edit screen when Edit button is pressed", async () => {
+      renderResultScreen(true);
+
+      await waitFor(() => {
+        const editButton = screen.getByTestId("action-button");
+        fireEvent.press(editButton);
+      });
+
+      expect(mockPush).toHaveBeenCalledWith("/edit");
     });
   });
 });
