@@ -1,12 +1,29 @@
+// Mock expo-router
+import { CreationProvider, useCreation } from "@/src/context/CreationContext";
 import HomeScreen from "@/src/screens/HomeScreen";
 import { theme } from "@/src/theme/theme";
-import { fireEvent, render, screen } from "@testing-library/react-native";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react-native";
 import { PaperProvider } from "react-native-paper";
+import * as mockGenerationModule from "../../utils/mockGeneration";
+
+const mockPush = jest.fn();
+jest.mock("expo-router", () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+}));
 
 function renderHomeScreen() {
   return render(
     <PaperProvider theme={theme}>
-      <HomeScreen />
+      <CreationProvider>
+        <HomeScreen />
+      </CreationProvider>
     </PaperProvider>,
   );
 }
@@ -73,5 +90,96 @@ describe("HomeScreen", () => {
     const button = screen.getByTestId("generate-button");
 
     expect(button.props.accessibilityState.disabled).toBe(true);
+  });
+
+  it("should generate creation and navigate to result when button is pressed", async () => {
+    const mockCreation = {
+      id: "test-id",
+      title: "Test Creation",
+      content: "Test content",
+      format: "song" as const,
+      mood: "dreamy" as const,
+      prompt: "test prompt",
+      createdAt: "2024-01-01T00:00:00.000Z",
+    };
+
+    const spy = jest
+      .spyOn(mockGenerationModule, "createMockGeneration")
+      .mockReturnValue(mockCreation);
+
+    renderHomeScreen();
+
+    // Enter text
+    fireEvent.changeText(
+      screen.getByPlaceholderText("moonlight, city rain, missing someone..."),
+      "test prompt",
+    );
+
+    // Select different format and mood
+    fireEvent.press(screen.getByText("Poem"));
+    fireEvent.press(screen.getByText("Sad"));
+
+    // Click generate
+    fireEvent.press(screen.getByTestId("generate-button"));
+
+    // Verify generation was called with correct parameters
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith({
+        prompt: "test prompt",
+        format: "poem",
+        mood: "sad",
+      });
+    });
+
+    // Verify navigation occurred
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith("/result");
+    });
+
+    spy.mockRestore();
+  });
+
+  it("should set the created generation in context", async () => {
+    const mockCreation = {
+      id: "test-id",
+      title: "Test Creation",
+      content: "Test content",
+      format: "song" as const,
+      mood: "dreamy" as const,
+      prompt: "test prompt",
+      createdAt: "2024-01-01T00:00:00.000Z",
+    };
+
+    const spy = jest
+      .spyOn(mockGenerationModule, "createMockGeneration")
+      .mockReturnValue(mockCreation);
+
+    let contextValue: any;
+    const TestWrapper = () => {
+      contextValue = useCreation();
+      return <HomeScreen />;
+    };
+
+    render(
+      <PaperProvider theme={theme}>
+        <CreationProvider>
+          <TestWrapper />
+        </CreationProvider>
+      </PaperProvider>,
+    );
+
+    // Enter text and generate
+    fireEvent.changeText(
+      screen.getByPlaceholderText("moonlight, city rain, missing someone..."),
+      "test prompt",
+    );
+    fireEvent.press(screen.getByTestId("generate-button"));
+
+    // Verify context was updated
+    await waitFor(() => {
+      expect(contextValue.currentCreation).toEqual(mockCreation);
+    });
+
+    spy.mockRestore();
   });
 });

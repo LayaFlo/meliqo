@@ -7,11 +7,16 @@ import {
   type CreationFormat,
   type CreationMood,
 } from "@/src/types/creation";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, Chip, Surface, Text, TextInput } from "react-native-paper";
+import { useCreation } from "../context/CreationContext";
+import { createMockGeneration } from "../utils/mockGeneration";
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const { setCurrentCreation } = useCreation();
   const [userInput, setUserInput] = useState("");
   const [selectedFormat, setSelectedFormat] = useState<CreationFormat>("song");
   const [selectedMood, setSelectedMood] = useState<CreationMood>("dreamy");
@@ -19,11 +24,15 @@ export default function HomeScreen() {
   const isGenerateDisabled = userInput.trim() === "";
 
   const handleGenerate = () => {
-    console.log("Generating with:", {
-      userInput: userInput.trim(),
-      selectedFormat,
-      selectedMood,
+    const creation = createMockGeneration({
+      prompt: userInput,
+      format: selectedFormat,
+      mood: selectedMood,
     });
+
+    setCurrentCreation(creation);
+
+    router.push("/result");
   };
 
   return (
