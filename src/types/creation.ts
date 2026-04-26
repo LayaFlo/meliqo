@@ -31,3 +31,13 @@ export const CREATION_MOOD_LABELS: Record<CreationMood, string> = {
   funny: "Funny",
   dark: "Dark",
 };
+
+export type GeneratedCreation = {
+  id: string;
+  title: string;
+  content: string;
+  format: CreationFormat;
+  mood: CreationMood;
+  prompt: string;
+  createdAt: string;
+};
