@@ -57,7 +57,8 @@ Current progress:
 - [x] Navigation
 - [x] Mock generation flow
 - [ ] AI generation flow
-- [ ] Collaborative editing
+- [x] Manual editing flow
+- [ ] AI-assisted collaborative editing
 - [ ] Voice input
 - [ ] Local persistence
 - [ ] Backend integration
