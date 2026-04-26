@@ -1,0 +1,33 @@
+export type CreationFormat = "song" | "poem" | "rap" | "haiku";
+
+export type CreationMood = "dreamy" | "sad" | "romantic" | "funny" | "dark";
+
+export const CREATION_FORMATS: CreationFormat[] = [
+  "song",
+  "poem",
+  "rap",
+  "haiku",
+];
+
+export const CREATION_MOODS: CreationMood[] = [
+  "dreamy",
+  "sad",
+  "romantic",
+  "funny",
+  "dark",
+];
+
+export const CREATION_FORMAT_LABELS: Record<CreationFormat, string> = {
+  song: "Song",
+  poem: "Poem",
+  rap: "Rap",
+  haiku: "Haiku",
+};
+
+export const CREATION_MOOD_LABELS: Record<CreationMood, string> = {
+  dreamy: "Dreamy",
+  sad: "Sad",
+  romantic: "Romantic",
+  funny: "Funny",
+  dark: "Dark",
+};
