@@ -54,8 +54,9 @@ Current progress:
 - [x] UI library setup
 - [x] Project concept defined
 - [x] Create and Result screens UI
-- [ ] Navigation
-- [ ] Generation flow
+- [x] Navigation
+- [x] Mock generation flow
+- [ ] AI generation flow
 - [ ] Collaborative editing
 - [ ] Voice input
 - [ ] Local persistence
