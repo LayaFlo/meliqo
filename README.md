@@ -32,6 +32,8 @@ Meliqo is designed as a **collaborative creative experience** - not just one-cli
 - Expo
 - TypeScript
 - React Native Paper
+- Jest
+- React Native Testing Library
 
 ### Planned
 
@@ -50,7 +52,7 @@ Current progress:
 - [x] Expo project initialized
 - [x] UI library setup
 - [x] Project concept defined
-- [ ] Create screen UI
+- [x] Create screen UI
 - [ ] Navigation
 - [ ] Generation flow
 - [ ] Result screen
@@ -80,6 +82,16 @@ Run on:
 - iOS Simulator
 - Android Emulator
 - Expo Go
+
+---
+
+## Testing
+
+Run tests:
+
+```bash
+npm test
+```
 
 ---
 
