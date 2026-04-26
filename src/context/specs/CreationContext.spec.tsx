@@ -1,7 +1,13 @@
 import type { GeneratedCreation } from "@/src/types/creation";
+import { getSavedCreations, saveCreation } from "@/src/utils/creationStorage";
 import { act, render } from "@testing-library/react-native";
 import React from "react";
 import { CreationProvider, useCreation } from "../CreationContext";
+
+jest.mock("@/src/utils/creationStorage", () => ({
+  getSavedCreations: jest.fn(),
+  saveCreation: jest.fn(),
+}));
 
 const mockCreation: GeneratedCreation = {
   id: "1",
@@ -15,6 +21,12 @@ const mockCreation: GeneratedCreation = {
 
 describe("CreationContext", () => {
   describe("CreationProvider", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      (getSavedCreations as jest.Mock).mockResolvedValue([]);
+      (saveCreation as jest.Mock).mockResolvedValue([]);
+    });
+
     it("should provide initial null currentCreation", () => {
       let contextValue: any;
       const TestComponent = () => {
@@ -31,6 +43,22 @@ describe("CreationContext", () => {
       );
 
       expect(contextValue.currentCreation).toBeNull();
+    });
+
+    it("should provide initial empty savedCreations array", () => {
+      let contextValue: any;
+      const TestComponent = () => {
+        contextValue = useCreation();
+        return <div>Saved: {contextValue.savedCreations.length}</div>;
+      };
+
+      render(
+        <CreationProvider>
+          <TestComponent />
+        </CreationProvider>,
+      );
+
+      expect(contextValue.savedCreations).toEqual([]);
     });
 
     it("should allow setting currentCreation", () => {
@@ -80,6 +108,80 @@ describe("CreationContext", () => {
       expect(contextValue.currentCreation).toBeNull();
     });
 
+    it("should load saved creations from storage", async () => {
+      const mockSavedCreations = [mockCreation];
+      (getSavedCreations as jest.Mock).mockResolvedValue(mockSavedCreations);
+
+      let contextValue: any;
+      const TestComponent = () => {
+        contextValue = useCreation();
+        return <div>Saved: {contextValue.savedCreations.length}</div>;
+      };
+
+      render(
+        <CreationProvider>
+          <TestComponent />
+        </CreationProvider>,
+      );
+
+      expect(contextValue.savedCreations).toEqual([]);
+
+      await act(async () => {
+        await contextValue.loadSavedCreations();
+      });
+
+      expect(getSavedCreations).toHaveBeenCalled();
+      expect(contextValue.savedCreations).toEqual(mockSavedCreations);
+    });
+
+    it("should save current creation to storage", async () => {
+      const mockUpdatedCreations = [mockCreation];
+      (saveCreation as jest.Mock).mockResolvedValue(mockUpdatedCreations);
+
+      let contextValue: any;
+      const TestComponent = () => {
+        contextValue = useCreation();
+        return <div>Test</div>;
+      };
+
+      render(
+        <CreationProvider>
+          <TestComponent />
+        </CreationProvider>,
+      );
+
+      act(() => {
+        contextValue.setCurrentCreation(mockCreation);
+      });
+
+      await act(async () => {
+        await contextValue.saveCurrentCreation();
+      });
+
+      expect(saveCreation).toHaveBeenCalledWith(mockCreation);
+      expect(contextValue.savedCreations).toEqual(mockUpdatedCreations);
+    });
+
+    it("should not save when currentCreation is null", async () => {
+      let contextValue: any;
+      const TestComponent = () => {
+        contextValue = useCreation();
+        return <div>Test</div>;
+      };
+
+      render(
+        <CreationProvider>
+          <TestComponent />
+        </CreationProvider>,
+      );
+
+      await act(async () => {
+        await contextValue.saveCurrentCreation();
+      });
+
+      expect(saveCreation).not.toHaveBeenCalled();
+    });
+
     it("should memoize the context value based on currentCreation", () => {
       let contextValue: any;
       const TestComponent = () => {
@@ -111,6 +213,31 @@ describe("CreationContext", () => {
       });
       expect(contextValue).toBe(updatedContextValue); // Should be same reference
     });
+
+    it("should update context value when savedCreations change", async () => {
+      const mockSavedCreations = [mockCreation];
+      (getSavedCreations as jest.Mock).mockResolvedValue(mockSavedCreations);
+
+      let contextValue: any;
+      const TestComponent = () => {
+        contextValue = useCreation();
+        return <div>Test</div>;
+      };
+
+      render(
+        <CreationProvider>
+          <TestComponent />
+        </CreationProvider>,
+      );
+
+      const initialContextValue = contextValue;
+
+      await act(async () => {
+        await contextValue.loadSavedCreations();
+      });
+
+      expect(contextValue).not.toBe(initialContextValue); // Should be different reference due to savedCreations change
+    });
   });
 
   describe("useCreation", () => {
@@ -141,8 +268,14 @@ describe("CreationContext", () => {
       expect(contextValue).toHaveProperty("currentCreation");
       expect(contextValue).toHaveProperty("setCurrentCreation");
       expect(contextValue).toHaveProperty("clearCurrentCreation");
+      expect(contextValue).toHaveProperty("savedCreations");
+      expect(contextValue).toHaveProperty("loadSavedCreations");
+      expect(contextValue).toHaveProperty("saveCurrentCreation");
       expect(typeof contextValue.setCurrentCreation).toBe("function");
       expect(typeof contextValue.clearCurrentCreation).toBe("function");
+      expect(typeof contextValue.loadSavedCreations).toBe("function");
+      expect(typeof contextValue.saveCurrentCreation).toBe("function");
+      expect(Array.isArray(contextValue.savedCreations)).toBe(true);
     });
   });
 });

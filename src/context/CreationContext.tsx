@@ -1,10 +1,21 @@
 import type { GeneratedCreation } from "@/src/types/creation";
-import { createContext, ReactNode, useContext, useMemo, useState } from "react";
+import { getSavedCreations, saveCreation } from "@/src/utils/creationStorage";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 
 type CreationContextValue = {
   currentCreation: GeneratedCreation | null;
   setCurrentCreation: (creation: GeneratedCreation) => void;
   clearCurrentCreation: () => void;
+  savedCreations: GeneratedCreation[];
+  loadSavedCreations: () => Promise<void>;
+  saveCurrentCreation: () => Promise<void>;
 };
 
 const CreationContext = createContext<CreationContextValue | null>(null);
@@ -16,18 +27,34 @@ type CreationProviderProps = {
 export function CreationProvider({ children }: CreationProviderProps) {
   const [currentCreation, setCurrentCreation] =
     useState<GeneratedCreation | null>(null);
+  const [savedCreations, setSavedCreations] = useState<GeneratedCreation[]>([]);
 
   const clearCurrentCreation = () => {
     setCurrentCreation(null);
   };
+
+  const loadSavedCreations = async () => {
+    const creations = await getSavedCreations();
+    setSavedCreations(creations);
+  };
+
+  const saveCurrentCreation = useCallback(async () => {
+    if (!currentCreation) return;
+
+    const creations = await saveCreation(currentCreation);
+    setSavedCreations(creations);
+  }, [currentCreation]);
 
   const value: CreationContextValue = useMemo(
     () => ({
       currentCreation,
       setCurrentCreation,
       clearCurrentCreation,
+      savedCreations,
+      loadSavedCreations,
+      saveCurrentCreation,
     }),
-    [currentCreation],
+    [currentCreation, saveCurrentCreation, savedCreations],
   );
 
   return (
