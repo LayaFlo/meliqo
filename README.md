@@ -1,50 +1,94 @@
-# Welcome to your Expo app 👋
+# Meliqo
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Meliqo** is an AI-powered songwriting and poetry companion being built with **React Native** and **Expo**.
 
-## Get started
+The idea is simple:
 
-1. Install dependencies
+Users enter random words, thoughts, or voice notes, choose a creative style, and AI transforms those ideas into songs or poems.
 
-   ```bash
-   npm install
-   ```
+Meliqo is designed as a **collaborative creative experience** - not just one-click generation, but an app where users can refine, edit, and continue writing with AI assistance.
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## Planned Features
 
-In the output, you'll find options to open the app in a
+* Text prompt input
+* Voice input
+* Style selection (Song / Poem / Rap / Haiku)
+* Mood selection (Sad / Romantic / Funny / Dreamy / Dark)
+* AI-generated songs and poems
+* Collaborative editing flow
+* Regenerate / refine output
+* Save creations locally
+* Share generated lyrics
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Tech Stack
 
-## Get a fresh project
+### Frontend
 
-When you're ready, run:
+* React Native
+* Expo
+* TypeScript
+* React Native Paper
+
+### Planned
+
+* React Navigation
+* React Context + Reducer
+* Backend API for AI generation
+
+---
+
+## Project Status
+
+**Early development**
+
+Current progress:
+
+* [x] Expo project initialized
+* [x] UI library setup
+* [x] Project concept defined
+* [ ] Create screen UI
+* [ ] Navigation
+* [ ] Generation flow
+* [ ] Result screen
+* [ ] Collaborative editing
+* [ ] Voice input
+* [ ] Local persistence
+* [ ] Backend integration
+
+---
+
+## Getting Started
+
+Install dependencies:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Start development server:
 
-## Learn more
+```bash
+npx expo start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Run on:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+* iOS Simulator
+* Android Emulator
+* Expo Go
 
-## Join the community
+---
 
-Join our community of developers creating universal apps.
+## Vision
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Meliqo aims to make creative writing playful, intuitive, and collaborative - helping users turn small ideas into songs, poems, and lyrical stories.
+
+---
+
+## Author
+
+Built by **Nadja**
