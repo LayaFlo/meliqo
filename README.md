@@ -12,15 +12,15 @@ Meliqo is designed as a **collaborative creative experience** - not just one-cli
 
 ## Planned Features
 
-* Text prompt input
-* Voice input
-* Style selection (Song / Poem / Rap / Haiku)
-* Mood selection (Sad / Romantic / Funny / Dreamy / Dark)
-* AI-generated songs and poems
-* Collaborative editing flow
-* Regenerate / refine output
-* Save creations locally
-* Share generated lyrics
+- Text prompt input
+- Voice input
+- Style selection (Song / Poem / Rap / Haiku)
+- Mood selection (Sad / Romantic / Funny / Dreamy / Dark)
+- AI-generated songs and poems
+- Collaborative editing flow
+- Regenerate / refine output
+- Save creations locally
+- Share generated lyrics
 
 ---
 
@@ -28,16 +28,16 @@ Meliqo is designed as a **collaborative creative experience** - not just one-cli
 
 ### Frontend
 
-* React Native
-* Expo
-* TypeScript
-* React Native Paper
+- React Native
+- Expo
+- TypeScript
+- React Native Paper
 
 ### Planned
 
-* React Navigation
-* React Context + Reducer
-* Backend API for AI generation
+- React Navigation
+- React Context + Reducer
+- Backend API for AI generation
 
 ---
 
@@ -47,17 +47,17 @@ Meliqo is designed as a **collaborative creative experience** - not just one-cli
 
 Current progress:
 
-* [x] Expo project initialized
-* [x] UI library setup
-* [x] Project concept defined
-* [ ] Create screen UI
-* [ ] Navigation
-* [ ] Generation flow
-* [ ] Result screen
-* [ ] Collaborative editing
-* [ ] Voice input
-* [ ] Local persistence
-* [ ] Backend integration
+- [x] Expo project initialized
+- [x] UI library setup
+- [x] Project concept defined
+- [ ] Create screen UI
+- [ ] Navigation
+- [ ] Generation flow
+- [ ] Result screen
+- [ ] Collaborative editing
+- [ ] Voice input
+- [ ] Local persistence
+- [ ] Backend integration
 
 ---
 
@@ -77,9 +77,9 @@ npx expo start
 
 Run on:
 
-* iOS Simulator
-* Android Emulator
-* Expo Go
+- iOS Simulator
+- Android Emulator
+- Expo Go
 
 ---
 
