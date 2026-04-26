@@ -60,7 +60,7 @@ Current progress:
 - [x] Manual editing flow
 - [ ] AI-assisted collaborative editing
 - [ ] Voice input
-- [ ] Local persistence
+- [x] Local persistence
 - [ ] Backend integration
 
 ---
