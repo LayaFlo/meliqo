@@ -1,3 +1,4 @@
+import { useCreation } from "@/src/context/CreationContext";
 import { theme } from "@/src/theme/theme";
 import {
   CREATION_FORMAT_LABELS,
@@ -7,12 +8,11 @@ import {
   type CreationFormat,
   type CreationMood,
 } from "@/src/types/creation";
+import { createMockGeneration } from "@/src/utils/mockGeneration";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, Chip, Surface, Text, TextInput } from "react-native-paper";
-import { useCreation } from "../context/CreationContext";
-import { createMockGeneration } from "../utils/mockGeneration";
 
 export default function HomeScreen() {
   const router = useRouter();

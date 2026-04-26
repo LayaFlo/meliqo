@@ -1,15 +1,8 @@
-// Mock expo-router
-import { CreationProvider, useCreation } from "@/src/context/CreationContext";
+import { useCreation } from "@/src/context/CreationContext";
 import HomeScreen from "@/src/screens/HomeScreen";
-import { theme } from "@/src/theme/theme";
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react-native";
-import { PaperProvider } from "react-native-paper";
-import * as mockGenerationModule from "../../utils/mockGeneration";
+import { renderWithProviders } from "@/src/test/renderWithProviders";
+import * as mockGenerationModule from "@/src/utils/mockGeneration";
+import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 
 const mockPush = jest.fn();
 jest.mock("expo-router", () => ({
@@ -18,19 +11,9 @@ jest.mock("expo-router", () => ({
   }),
 }));
 
-function renderHomeScreen() {
-  return render(
-    <PaperProvider theme={theme}>
-      <CreationProvider>
-        <HomeScreen />
-      </CreationProvider>
-    </PaperProvider>,
-  );
-}
-
 describe("HomeScreen", () => {
   it("should render the create screen content", () => {
-    renderHomeScreen();
+    renderWithProviders(<HomeScreen />);
 
     expect(screen.getByText("Meliqo")).toBeTruthy();
     expect(screen.getByText("What should we write from?")).toBeTruthy();
@@ -40,7 +23,7 @@ describe("HomeScreen", () => {
   });
 
   it("should render format options", () => {
-    renderHomeScreen();
+    renderWithProviders(<HomeScreen />);
 
     expect(screen.getByText("Song")).toBeTruthy();
     expect(screen.getByText("Poem")).toBeTruthy();
@@ -49,7 +32,7 @@ describe("HomeScreen", () => {
   });
 
   it("should render mood options", () => {
-    renderHomeScreen();
+    renderWithProviders(<HomeScreen />);
 
     expect(screen.getByText("Dreamy")).toBeTruthy();
     expect(screen.getByText("Sad")).toBeTruthy();
@@ -59,7 +42,7 @@ describe("HomeScreen", () => {
   });
 
   it("should disable the generate button when input is empty", () => {
-    renderHomeScreen();
+    renderWithProviders(<HomeScreen />);
 
     const button = screen.getByTestId("generate-button");
 
@@ -67,7 +50,7 @@ describe("HomeScreen", () => {
   });
 
   it("should enable the generate button when user enters text", () => {
-    renderHomeScreen();
+    renderWithProviders(<HomeScreen />);
 
     fireEvent.changeText(
       screen.getByPlaceholderText("moonlight, city rain, missing someone..."),
@@ -80,7 +63,7 @@ describe("HomeScreen", () => {
   });
 
   it("should keep the generate button disabled for whitespace-only input", () => {
-    renderHomeScreen();
+    renderWithProviders(<HomeScreen />);
 
     fireEvent.changeText(
       screen.getByPlaceholderText("moonlight, city rain, missing someone..."),
@@ -107,7 +90,7 @@ describe("HomeScreen", () => {
       .spyOn(mockGenerationModule, "createMockGeneration")
       .mockReturnValue(mockCreation);
 
-    renderHomeScreen();
+    renderWithProviders(<HomeScreen />);
 
     // Enter text
     fireEvent.changeText(
@@ -160,13 +143,7 @@ describe("HomeScreen", () => {
       return <HomeScreen />;
     };
 
-    render(
-      <PaperProvider theme={theme}>
-        <CreationProvider>
-          <TestWrapper />
-        </CreationProvider>
-      </PaperProvider>,
-    );
+    renderWithProviders(<TestWrapper />);
 
     // Enter text and generate
     fireEvent.changeText(

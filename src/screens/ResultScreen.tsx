@@ -1,3 +1,4 @@
+import { useCreation } from "@/src/context/CreationContext";
 import { theme } from "@/src/theme/theme";
 import { useRouter } from "expo-router";
 import { ScrollView, StyleSheet, View } from "react-native";
@@ -9,7 +10,6 @@ import {
   Surface,
   Text,
 } from "react-native-paper";
-import { useCreation } from "../context/CreationContext";
 
 export default function ResultScreen() {
   const router = useRouter();

@@ -1,16 +1,9 @@
-import { CreationProvider, useCreation } from "@/src/context/CreationContext";
+import { useCreation } from "@/src/context/CreationContext";
 import ResultScreen from "@/src/screens/ResultScreen";
-import { theme } from "@/src/theme/theme";
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react-native";
+import { renderWithProviders } from "@/src/test/renderWithProviders";
+import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import React from "react";
-import { PaperProvider } from "react-native-paper";
 
-// Mock expo-router
 const mockBack = jest.fn();
 const mockReplace = jest.fn();
 jest.mock("expo-router", () => ({
@@ -34,12 +27,8 @@ function renderResultScreen(withCreation = true) {
       }
     : null;
 
-  return render(
-    <PaperProvider theme={theme}>
-      <CreationProvider>
-        <ResultScreenWithContext creation={mockCreation} />
-      </CreationProvider>
-    </PaperProvider>,
+  return renderWithProviders(
+    <ResultScreenWithContext creation={mockCreation} />,
   );
 }
 
