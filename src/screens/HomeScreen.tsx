@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   header: {
-    marginBottom: 42,
+    marginBottom: 40,
   },
   title: {
     fontWeight: "700",
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionTitle: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   input: {
     minHeight: 140,
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   chipRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    gap: 8,
   },
   chip: {
     backgroundColor: theme.colors.surfaceVariant,
@@ -157,6 +157,6 @@ const styles = StyleSheet.create({
     marginTop: "auto",
   },
   generateButtonContent: {
-    height: 52,
+    height: 48,
   },
 });
