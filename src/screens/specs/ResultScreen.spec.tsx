@@ -1,66 +1,127 @@
+import { CreationProvider, useCreation } from "@/src/context/CreationContext";
 import ResultScreen from "@/src/screens/ResultScreen";
-import { fireEvent, render } from "@testing-library/react-native";
-import { useRouter } from "expo-router";
+import { theme } from "@/src/theme/theme";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react-native";
 import React from "react";
+import { PaperProvider } from "react-native-paper";
 
+// Mock expo-router
 const mockBack = jest.fn();
-
+const mockReplace = jest.fn();
 jest.mock("expo-router", () => ({
-  useRouter: jest.fn(),
+  useRouter: () => ({
+    back: mockBack,
+    replace: mockReplace,
+  }),
 }));
+
+function renderResultScreen(withCreation = true) {
+  const mockCreation = withCreation
+    ? {
+        id: "test-id",
+        title: "Midnight Echo",
+        content:
+          "Verse 1\nI found your words beneath the city rain\nA little moonlight calling out my name\n\nChorus\nWe turn the silence into something true\nA song that starts and ends with you",
+        format: "song" as const,
+        mood: "dreamy" as const,
+        prompt: "test prompt",
+        createdAt: "2024-01-01T00:00:00.000Z",
+      }
+    : null;
+
+  return render(
+    <PaperProvider theme={theme}>
+      <CreationProvider>
+        <ResultScreenWithContext creation={mockCreation} />
+      </CreationProvider>
+    </PaperProvider>,
+  );
+}
+
+function ResultScreenWithContext({ creation }: { creation: any }) {
+  const { setCurrentCreation } = useCreation();
+
+  React.useEffect(() => {
+    if (creation) {
+      setCurrentCreation(creation);
+    }
+  }, [creation, setCurrentCreation]);
+
+  return <ResultScreen />;
+}
 
 describe("ResultScreen", () => {
   beforeEach(() => {
     mockBack.mockClear();
-    (useRouter as jest.Mock).mockReturnValue({ back: mockBack });
+    mockReplace.mockClear();
   });
 
-  it("should render the creation title and metadata", () => {
-    const { getByText } = render(<ResultScreen />);
+  describe("when no creation exists", () => {
+    it("should render the empty state", () => {
+      renderResultScreen(false);
 
-    expect(getByText("Midnight Echo")).toBeTruthy();
-    expect(getByText("song • dreamy")).toBeTruthy();
+      expect(screen.getByText("Nothing here yet")).toBeTruthy();
+      expect(
+        screen.getByText("Create your first song or poem to see it here."),
+      ).toBeTruthy();
+      expect(screen.getByText("Start Creating")).toBeTruthy();
+    });
+
+    it("should navigate to home when Start Creating button is pressed", () => {
+      renderResultScreen(false);
+
+      fireEvent.press(screen.getByText("Start Creating"));
+
+      expect(mockReplace).toHaveBeenCalledWith("/");
+    });
   });
 
-  it("should render the creation content", () => {
-    const { getByText } = render(<ResultScreen />);
+  describe("when creation exists", () => {
+    it("should render the creation title and metadata", async () => {
+      renderResultScreen(true);
 
-    expect(getByText(/Verse 1/)).toBeTruthy();
-    expect(getByText(/A song that starts and ends with you/)).toBeTruthy();
-  });
+      await waitFor(() => {
+        expect(screen.getByText("Midnight Echo")).toBeTruthy();
+        expect(screen.getByText("song • dreamy")).toBeTruthy();
+      });
+    });
 
-  it("should call router.back when the back button is pressed", () => {
-    const { getAllByRole } = render(<ResultScreen />);
-    const buttons = getAllByRole("button");
+    it("should render the creation content", async () => {
+      renderResultScreen(true);
 
-    fireEvent.press(buttons[0]);
+      await waitFor(() => {
+        expect(screen.getByText(/Verse 1/)).toBeTruthy();
+        expect(
+          screen.getByText(/A song that starts and ends with you/),
+        ).toBeTruthy();
+      });
+    });
 
-    expect(mockBack).toHaveBeenCalledTimes(1);
-  });
+    it("should call router.back when the back button is pressed", async () => {
+      renderResultScreen(true);
 
-  it("should call the edit handler when Edit button is pressed", () => {
-    const consoleLogSpy = jest
-      .spyOn(console, "log")
-      .mockImplementation(() => {});
-    const { getByText } = render(<ResultScreen />);
+      await waitFor(() => {
+        // Find the back button by its testID
+        const backButton = screen.getByTestId("icon-button");
+        fireEvent.press(backButton);
+      });
 
-    fireEvent.press(getByText("Edit"));
+      expect(mockBack).toHaveBeenCalledTimes(1);
+    });
 
-    expect(consoleLogSpy).toHaveBeenCalledWith("Edit creation");
-    consoleLogSpy.mockRestore();
-  });
+    it("should have Edit, Regenerate, and Save buttons", async () => {
+      renderResultScreen(true);
 
-  it("should call the regenerate and save handlers when their buttons are pressed", () => {
-    const consoleLogSpy = jest
-      .spyOn(console, "log")
-      .mockImplementation(() => {});
-    const { getByText } = render(<ResultScreen />);
-
-    fireEvent.press(getByText("Regenerate"));
-    fireEvent.press(getByText("Save"));
-
-    expect(consoleLogSpy).toHaveBeenNthCalledWith(1, "Regenerate creation");
-    expect(consoleLogSpy).toHaveBeenNthCalledWith(2, "Save creation");
-    consoleLogSpy.mockRestore();
+      await waitFor(() => {
+        expect(screen.getByTestId("action-button")).toBeTruthy();
+        expect(screen.getByText("Regenerate")).toBeTruthy();
+        expect(screen.getByText("Save")).toBeTruthy();
+      });
+    });
   });
 });

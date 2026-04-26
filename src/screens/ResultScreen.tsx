@@ -1,17 +1,19 @@
 import { theme } from "@/src/theme/theme";
 import { useRouter } from "expo-router";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Button, Card, IconButton, Surface, Text } from "react-native-paper";
-import { createMockGeneration } from "../utils/mockGeneration";
+import {
+  Button,
+  Card,
+  Icon,
+  IconButton,
+  Surface,
+  Text,
+} from "react-native-paper";
+import { useCreation } from "../context/CreationContext";
 
 export default function ResultScreen() {
   const router = useRouter();
-
-  const creation = createMockGeneration({
-    prompt: "moonlight, city rain, missing someone",
-    format: "song",
-    mood: "dreamy",
-  });
+  const { currentCreation } = useCreation();
 
   const handleEdit = () => {
     console.log("Edit creation");
@@ -24,6 +26,35 @@ export default function ResultScreen() {
   const handleSave = () => {
     console.log("Save creation");
   };
+
+  if (!currentCreation) {
+    return (
+      <Surface style={styles.container}>
+        <View style={styles.emptyState}>
+          <View style={styles.emptyIcon}>
+            <Icon
+              source="music-note-outline"
+              size={56}
+              color={theme.colors.primary}
+            />
+          </View>
+          <Text variant="headlineSmall" style={styles.emptyTitle}>
+            Nothing here yet
+          </Text>
+          <Text variant="bodyMedium" style={styles.emptySubtitle}>
+            Create your first song or poem to see it here.
+          </Text>
+          <Button
+            mode="contained"
+            onPress={() => router.replace("/")}
+            style={styles.emptyButton}
+          >
+            Start Creating
+          </Button>
+        </View>
+      </Surface>
+    );
+  }
 
   return (
     <Surface style={styles.container}>
@@ -40,16 +71,16 @@ export default function ResultScreen() {
         />
         <View style={styles.header}>
           <Text variant="headlineMedium" style={styles.title}>
-            {creation.title}
+            {currentCreation.title}
           </Text>
           <Text variant="bodyMedium" style={styles.metadata}>
-            {creation.format} • {creation.mood}
+            {currentCreation.format} • {currentCreation.mood}
           </Text>
         </View>
         <Card style={styles.card}>
           <Card.Content>
             <Text variant="bodyLarge" style={styles.lyrics}>
-              {creation.content}
+              {currentCreation.content}
             </Text>
           </Card.Content>
         </Card>
@@ -132,5 +163,29 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     flex: 1,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 32,
+  },
+  emptyIcon: {
+    marginBottom: 20,
+  },
+  emptyTitle: {
+    fontWeight: "700",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  emptySubtitle: {
+    color: theme.colors.onSurfaceVariant,
+    textAlign: "center",
+    lineHeight: 24,
+    marginBottom: 28,
+  },
+  emptyButton: {
+    borderRadius: 999,
+    minWidth: 180,
   },
 });
