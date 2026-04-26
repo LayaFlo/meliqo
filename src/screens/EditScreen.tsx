@@ -3,7 +3,13 @@ import { theme } from "@/src/theme/theme";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Button, Surface, Text, TextInput } from "react-native-paper";
+import {
+  Button,
+  IconButton,
+  Surface,
+  Text,
+  TextInput,
+} from "react-native-paper";
 
 export default function EditScreen() {
   const router = useRouter();
@@ -11,6 +17,7 @@ export default function EditScreen() {
 
   const [content, setContent] = useState(currentCreation?.content ?? "");
 
+  const hasChanges = content !== currentCreation?.content;
   const handleSave = () => {
     if (!currentCreation) return;
 
@@ -41,6 +48,14 @@ export default function EditScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
+        <IconButton
+          icon="arrow-left"
+          size={24}
+          iconColor={theme.colors.onBackground}
+          onPress={() => router.back()}
+          style={styles.backButton}
+        />
+
         <Text variant="headlineMedium" style={styles.title}>
           Edit your creation
         </Text>
@@ -52,14 +67,25 @@ export default function EditScreen() {
           multiline
           style={styles.input}
         />
-        <Button
-          mode="contained"
-          onPress={handleSave}
-          style={styles.saveButton}
-          contentStyle={styles.buttonContent}
-        >
-          Save Changes
-        </Button>
+        <View style={styles.buttonContainer}>
+          <Button
+            mode="outlined"
+            onPress={() => router.back()}
+            style={styles.secondaryButton}
+            contentStyle={styles.buttonContent}
+          >
+            Cancel
+          </Button>
+          <Button
+            mode="contained"
+            onPress={handleSave}
+            style={styles.primaryButton}
+            contentStyle={styles.buttonContent}
+            disabled={!hasChanges}
+          >
+            Save
+          </Button>
+        </View>
       </ScrollView>
     </Surface>
   );
@@ -76,6 +102,10 @@ const styles = StyleSheet.create({
     paddingTop: 72,
     paddingBottom: 40,
   },
+  backButton: {
+    marginLeft: -8,
+    marginBottom: 24,
+  },
   title: {
     fontWeight: "700",
     marginBottom: 24,
@@ -83,9 +113,6 @@ const styles = StyleSheet.create({
   input: {
     minHeight: 300,
     backgroundColor: theme.colors.surface,
-  },
-  saveButton: {
-    marginTop: 24,
   },
   buttonContent: {
     height: 48,
@@ -96,5 +123,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 20,
     padding: 24,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 24,
+  },
+  primaryButton: {
+    flex: 1,
+  },
+  secondaryButton: {
+    flex: 1,
   },
 });

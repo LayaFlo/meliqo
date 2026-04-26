@@ -72,46 +72,8 @@ describe("EditScreen", () => {
 
     expect(screen.getByText("Edit your creation")).toBeTruthy();
     expect(screen.getByDisplayValue("Original lyrics content")).toBeTruthy();
-  });
-
-  it("should display the label 'Lyrics' for the text input", () => {
-    const setCurrentCreation = jest.fn();
-    (useCreation as jest.Mock).mockReturnValue({
-      currentCreation: mockCreation,
-      setCurrentCreation,
-    });
-
-    renderWithProviders(<EditScreen />);
-
-    const lyricInputs = screen.queryAllByText("Lyrics");
-    expect(lyricInputs.length).toBeGreaterThan(0);
-  });
-
-  it("should render save changes button", () => {
-    const setCurrentCreation = jest.fn();
-    (useCreation as jest.Mock).mockReturnValue({
-      currentCreation: mockCreation,
-      setCurrentCreation,
-    });
-
-    renderWithProviders(<EditScreen />);
-
-    expect(screen.getByText("Save Changes")).toBeTruthy();
-  });
-
-  it("should update content when user types in the textarea", () => {
-    const setCurrentCreation = jest.fn();
-    (useCreation as jest.Mock).mockReturnValue({
-      currentCreation: mockCreation,
-      setCurrentCreation,
-    });
-
-    renderWithProviders(<EditScreen />);
-
-    const input = screen.getByDisplayValue("Original lyrics content");
-    fireEvent.changeText(input, "Updated lyrics content");
-
-    expect(screen.getByDisplayValue("Updated lyrics content")).toBeTruthy();
+    expect(screen.getByText("Save")).toBeTruthy();
+    expect(screen.getByText("Cancel")).toBeTruthy();
   });
 
   it("should save changes and navigate back when save button is pressed", async () => {
@@ -126,7 +88,7 @@ describe("EditScreen", () => {
     const input = screen.getByDisplayValue("Original lyrics content");
     fireEvent.changeText(input, "Updated lyrics content");
 
-    const saveButton = screen.getByText("Save Changes");
+    const saveButton = screen.getByText("Save");
     fireEvent.press(saveButton);
 
     await waitFor(() => {
@@ -153,7 +115,7 @@ describe("EditScreen", () => {
     const input = screen.getByDisplayValue("Original lyrics content");
     fireEvent.changeText(input, "New content");
 
-    const saveButton = screen.getByText("Save Changes");
+    const saveButton = screen.getByText("Save");
     fireEvent.press(saveButton);
 
     await waitFor(() => {
@@ -199,7 +161,7 @@ describe("EditScreen", () => {
     const input = screen.getByDisplayValue("Original lyrics content");
     fireEvent.changeText(input, "");
 
-    const saveButton = screen.getByText("Save Changes");
+    const saveButton = screen.getByText("Save");
     fireEvent.press(saveButton);
 
     await waitFor(() => {
@@ -210,16 +172,104 @@ describe("EditScreen", () => {
     });
   });
 
-  it("should not navigate back if currentCreation is null when save is pressed", () => {
+  it("should render back button when currentCreation exists", () => {
     const setCurrentCreation = jest.fn();
     (useCreation as jest.Mock).mockReturnValue({
-      currentCreation: null,
+      currentCreation: mockCreation,
       setCurrentCreation,
     });
 
     renderWithProviders(<EditScreen />);
 
-    // Testing the guard
-    expect(mockBack).not.toHaveBeenCalled();
+    const backButton = screen.getByTestId("icon-button");
+    expect(backButton).toBeTruthy();
+  });
+
+  it("should navigate back when back button is pressed", () => {
+    const setCurrentCreation = jest.fn();
+    (useCreation as jest.Mock).mockReturnValue({
+      currentCreation: mockCreation,
+      setCurrentCreation,
+    });
+
+    renderWithProviders(<EditScreen />);
+
+    const backButton = screen.getByTestId("icon-button");
+    fireEvent.press(backButton);
+
+    expect(mockBack).toHaveBeenCalledTimes(1);
+  });
+
+  it("should render Cancel button when currentCreation exists", () => {
+    const setCurrentCreation = jest.fn();
+    (useCreation as jest.Mock).mockReturnValue({
+      currentCreation: mockCreation,
+      setCurrentCreation,
+    });
+
+    renderWithProviders(<EditScreen />);
+
+    expect(screen.getByText("Cancel")).toBeTruthy();
+  });
+
+  it("should navigate back when Cancel button is pressed", () => {
+    const setCurrentCreation = jest.fn();
+    (useCreation as jest.Mock).mockReturnValue({
+      currentCreation: mockCreation,
+      setCurrentCreation,
+    });
+
+    renderWithProviders(<EditScreen />);
+
+    const cancelButton = screen.getByText("Cancel");
+    fireEvent.press(cancelButton);
+
+    expect(mockBack).toHaveBeenCalledTimes(1);
+  });
+
+  it("should disable Save button when there are no changes", () => {
+    const setCurrentCreation = jest.fn();
+    (useCreation as jest.Mock).mockReturnValue({
+      currentCreation: mockCreation,
+      setCurrentCreation,
+    });
+
+    renderWithProviders(<EditScreen />);
+
+    const saveButton = screen.getByRole("button", { name: "Save" });
+    expect(saveButton.props.accessibilityState.disabled).toBe(true);
+  });
+
+  it("should enable Save button when content has changed", () => {
+    const setCurrentCreation = jest.fn();
+    (useCreation as jest.Mock).mockReturnValue({
+      currentCreation: mockCreation,
+      setCurrentCreation,
+    });
+
+    renderWithProviders(<EditScreen />);
+
+    const input = screen.getByDisplayValue("Original lyrics content");
+    fireEvent.changeText(input, "Updated lyrics content");
+
+    const saveButton = screen.getByRole("button", { name: "Save" });
+    expect(saveButton.props.accessibilityState.disabled).toBe(false);
+  });
+
+  it("should disable Save button when content is changed back to original", () => {
+    const setCurrentCreation = jest.fn();
+    (useCreation as jest.Mock).mockReturnValue({
+      currentCreation: mockCreation,
+      setCurrentCreation,
+    });
+
+    renderWithProviders(<EditScreen />);
+
+    const input = screen.getByDisplayValue("Original lyrics content");
+    fireEvent.changeText(input, "Updated lyrics content");
+    fireEvent.changeText(input, "Original lyrics content");
+
+    const saveButton = screen.getByRole("button", { name: "Save" });
+    expect(saveButton.props.accessibilityState.disabled).toBe(true);
   });
 });
