@@ -82,6 +82,28 @@ describe("CreationContext", () => {
       expect(contextValue.currentCreation).toEqual(mockCreation);
     });
 
+    it("should allow opening a saved creation as currentCreation", () => {
+      let contextValue: any;
+      const TestComponent = () => {
+        contextValue = useCreation();
+        return (
+          <div>Current: {contextValue.currentCreation?.title || "null"}</div>
+        );
+      };
+
+      render(
+        <CreationProvider>
+          <TestComponent />
+        </CreationProvider>,
+      );
+
+      act(() => {
+        contextValue.openCreation(mockCreation);
+      });
+
+      expect(contextValue.currentCreation).toEqual(mockCreation);
+    });
+
     it("should allow clearing currentCreation", () => {
       let contextValue: any;
       const TestComponent = () => {
@@ -271,10 +293,12 @@ describe("CreationContext", () => {
       expect(contextValue).toHaveProperty("savedCreations");
       expect(contextValue).toHaveProperty("loadSavedCreations");
       expect(contextValue).toHaveProperty("saveCurrentCreation");
+      expect(contextValue).toHaveProperty("openCreation");
       expect(typeof contextValue.setCurrentCreation).toBe("function");
       expect(typeof contextValue.clearCurrentCreation).toBe("function");
       expect(typeof contextValue.loadSavedCreations).toBe("function");
       expect(typeof contextValue.saveCurrentCreation).toBe("function");
+      expect(typeof contextValue.openCreation).toBe("function");
       expect(Array.isArray(contextValue.savedCreations)).toBe(true);
     });
   });

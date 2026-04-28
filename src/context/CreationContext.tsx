@@ -16,6 +16,7 @@ type CreationContextValue = {
   savedCreations: GeneratedCreation[];
   loadSavedCreations: () => Promise<void>;
   saveCurrentCreation: () => Promise<void>;
+  openCreation: (creation: GeneratedCreation) => void;
 };
 
 const CreationContext = createContext<CreationContextValue | null>(null);
@@ -45,6 +46,10 @@ export function CreationProvider({ children }: CreationProviderProps) {
     setSavedCreations(creations);
   }, [currentCreation]);
 
+  const openCreation = useCallback((creation: GeneratedCreation) => {
+    setCurrentCreation(creation);
+  }, []);
+
   const value: CreationContextValue = useMemo(
     () => ({
       currentCreation,
@@ -53,8 +58,15 @@ export function CreationProvider({ children }: CreationProviderProps) {
       savedCreations,
       loadSavedCreations,
       saveCurrentCreation,
+      openCreation,
     }),
-    [currentCreation, loadSavedCreations, saveCurrentCreation, savedCreations],
+    [
+      currentCreation,
+      loadSavedCreations,
+      openCreation,
+      saveCurrentCreation,
+      savedCreations,
+    ],
   );
 
   return (
