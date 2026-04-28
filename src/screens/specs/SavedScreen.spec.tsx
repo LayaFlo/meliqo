@@ -10,9 +10,11 @@ jest.mock("@/src/context/CreationContext", () => ({
 }));
 
 const mockPush = jest.fn();
+const mockBack = jest.fn();
 jest.mock("expo-router", () => ({
   useRouter: () => ({
     push: mockPush,
+    back: mockBack,
   }),
 }));
 
@@ -40,6 +42,7 @@ describe("SavedScreen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockPush.mockClear();
+    mockBack.mockClear();
   });
 
   function mockUseCreation({
@@ -84,7 +87,7 @@ describe("SavedScreen", () => {
     });
   });
 
-  it("should render no saved creation titles when no saved creations exist", () => {
+  it("should render the empty state when no saved creations exist", () => {
     mockUseCreation({
       savedCreations: [],
     });
@@ -92,8 +95,10 @@ describe("SavedScreen", () => {
     renderWithProviders(<SavedScreen />);
 
     expect(screen.getByText("Saved creations")).toBeTruthy();
-    expect(screen.queryByText(mockCreation1.title)).toBeNull();
-    expect(screen.queryByText(mockCreation2.title)).toBeNull();
+    expect(screen.getByText("No saved creations yet")).toBeTruthy();
+    expect(
+      screen.getByText("Save a song or poem to find it here later."),
+    ).toBeTruthy();
   });
 
   it("should render a single saved creation", () => {
@@ -136,5 +141,17 @@ describe("SavedScreen", () => {
 
     expect(mockOpenCreation).toHaveBeenCalledWith(mockCreation1);
     expect(mockPush).toHaveBeenCalledWith("/result");
+  });
+
+  it("should navigate back when the back button is pressed", () => {
+    mockUseCreation({
+      savedCreations: [],
+    });
+
+    renderWithProviders(<SavedScreen />);
+
+    fireEvent.press(screen.getByTestId("icon-button"));
+
+    expect(mockBack).toHaveBeenCalledTimes(1);
   });
 });
