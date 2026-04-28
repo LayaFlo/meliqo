@@ -7,6 +7,7 @@ import {
   CREATION_MOODS,
   type CreationFormat,
   type CreationMood,
+  type InputMode,
 } from "@/src/types/creation";
 import { createMockGeneration } from "@/src/utils/mockGeneration";
 import { useRouter } from "expo-router";
@@ -17,9 +18,11 @@ import { Button, Chip, Surface, Text, TextInput } from "react-native-paper";
 export default function HomeScreen() {
   const router = useRouter();
   const { setCurrentCreation } = useCreation();
+
   const [userInput, setUserInput] = useState("");
   const [selectedFormat, setSelectedFormat] = useState<CreationFormat>("song");
   const [selectedMood, setSelectedMood] = useState<CreationMood>("dreamy");
+  const [inputMode, setInputMode] = useState<InputMode>("text");
 
   const isGenerateDisabled = userInput.trim() === "";
 
@@ -54,6 +57,32 @@ export default function HomeScreen() {
           <Text variant="bodyLarge" style={styles.subtitle}>
             Turn scattered thoughts into songs, poems, and lyrical stories.
           </Text>
+        </View>
+        <View style={styles.inputModeRow}>
+          <Chip
+            testID="input-mode-text"
+            selected={inputMode === "text"}
+            onPress={() => setInputMode("text")}
+            style={[
+              styles.modeChip,
+              inputMode === "text" && styles.selectedChip,
+            ]}
+            icon="keyboard-outline"
+          >
+            Type
+          </Chip>
+          <Chip
+            testID="input-mode-voice"
+            selected={inputMode === "voice"}
+            onPress={() => setInputMode("voice")}
+            style={[
+              styles.modeChip,
+              inputMode === "voice" && styles.selectedChip,
+            ]}
+            icon="microphone-outline"
+          >
+            Speak
+          </Chip>
         </View>
         <View style={styles.section}>
           <Text variant="titleMedium" style={styles.sectionTitle}>
@@ -150,6 +179,14 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: theme.colors.onSurfaceVariant,
+  },
+  inputModeRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginBottom: 14,
+  },
+  modeChip: {
+    backgroundColor: theme.colors.surfaceVariant,
   },
   section: {
     marginBottom: 24,

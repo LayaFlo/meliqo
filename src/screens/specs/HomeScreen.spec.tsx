@@ -58,6 +58,32 @@ describe("HomeScreen", () => {
     expect(screen.getByText("Dark")).toBeTruthy();
   });
 
+  it("should render input mode options with text selected by default", () => {
+    renderWithProviders(<HomeScreen />);
+
+    expect(screen.getByText("Type")).toBeTruthy();
+    expect(screen.getByText("Speak")).toBeTruthy();
+    expect(
+      screen.getByTestId("input-mode-text").props.accessibilityState.selected,
+    ).toBe(true);
+    expect(
+      screen.getByTestId("input-mode-voice").props.accessibilityState.selected,
+    ).toBe(false);
+  });
+
+  it("should select voice input mode when Speak is pressed", () => {
+    renderWithProviders(<HomeScreen />);
+
+    fireEvent.press(screen.getByText("Speak"));
+
+    expect(
+      screen.getByTestId("input-mode-text").props.accessibilityState.selected,
+    ).toBe(false);
+    expect(
+      screen.getByTestId("input-mode-voice").props.accessibilityState.selected,
+    ).toBe(true);
+  });
+
   it("should disable the generate button when input is empty", () => {
     renderWithProviders(<HomeScreen />);
 
