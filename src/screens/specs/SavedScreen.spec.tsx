@@ -49,18 +49,21 @@ describe("SavedScreen", () => {
     savedCreations,
     loadSavedCreations = jest.fn(),
     openCreation = jest.fn(),
+    deleteCreation = jest.fn(),
   }: {
     savedCreations: GeneratedCreation[];
     loadSavedCreations?: jest.Mock;
     openCreation?: jest.Mock;
+    deleteCreation?: jest.Mock;
   }) {
     (useCreation as jest.Mock).mockReturnValue({
       savedCreations,
       loadSavedCreations,
       openCreation,
+      deleteCreation,
     });
 
-    return { loadSavedCreations, openCreation };
+    return { loadSavedCreations, openCreation, deleteCreation };
   }
 
   it("should render the title", () => {
@@ -141,6 +144,24 @@ describe("SavedScreen", () => {
 
     expect(mockOpenCreation).toHaveBeenCalledWith(mockCreation1);
     expect(mockPush).toHaveBeenCalledWith("/result");
+  });
+
+  it("should delete a saved creation when the delete button is pressed", () => {
+    const mockDeleteCreation = jest.fn();
+    const mockOpenCreation = jest.fn();
+    mockUseCreation({
+      savedCreations: [mockCreation1],
+      openCreation: mockOpenCreation,
+      deleteCreation: mockDeleteCreation,
+    });
+
+    renderWithProviders(<SavedScreen />);
+
+    fireEvent.press(screen.getByTestId(`delete-creation-${mockCreation1.id}`));
+
+    expect(mockDeleteCreation).toHaveBeenCalledWith(mockCreation1.id);
+    expect(mockOpenCreation).not.toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it("should navigate back when the back button is pressed", () => {

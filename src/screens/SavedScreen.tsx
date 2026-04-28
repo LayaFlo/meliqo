@@ -8,7 +8,8 @@ import { Card, IconButton, Surface, Text } from "react-native-paper";
 
 export default function SavedScreen() {
   const router = useRouter();
-  const { savedCreations, loadSavedCreations, openCreation } = useCreation();
+  const { savedCreations, loadSavedCreations, openCreation, deleteCreation } =
+    useCreation();
 
   useEffect(() => {
     loadSavedCreations();
@@ -47,11 +48,24 @@ export default function SavedScreen() {
               style={styles.card}
             >
               <Card.Content>
-                <Text variant="titleMedium">{creation.title}</Text>
-                <CreationMetadata
-                  format={creation.format}
-                  mood={creation.mood}
-                  style={styles.meta}
+                <Card.Title
+                  title={creation.title}
+                  subtitle={
+                    <CreationMetadata
+                      format={creation.format}
+                      mood={creation.mood}
+                      style={styles.meta}
+                    />
+                  }
+                  titleVariant="titleMedium"
+                  right={() => (
+                    <IconButton
+                      icon="trash-can-outline"
+                      onPress={() => deleteCreation(creation.id)}
+                      accessibilityLabel={`Delete ${creation.title}`}
+                      testID={`delete-creation-${creation.id}`}
+                    />
+                  )}
                 />
               </Card.Content>
             </Card>
