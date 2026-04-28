@@ -1,3 +1,4 @@
+import { CreationMetadata } from "@/src/components/CreationMetadata";
 import { useCreation } from "@/src/context/CreationContext";
 import { theme } from "@/src/theme/theme";
 import { useRouter } from "expo-router";
@@ -69,9 +70,11 @@ export default function ResultScreen() {
           <Text variant="headlineMedium" style={styles.title}>
             {currentCreation.title}
           </Text>
-          <Text variant="bodyMedium" style={styles.metadata}>
-            {currentCreation.format} • {currentCreation.mood}
-          </Text>
+          <CreationMetadata
+            format={currentCreation.format}
+            mood={currentCreation.mood}
+            style={styles.metadata}
+          />
         </View>
         <Card style={styles.card}>
           <Card.Content>

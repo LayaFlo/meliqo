@@ -79,7 +79,7 @@ describe("ResultScreen", () => {
 
       await waitFor(() => {
         expect(screen.getByText("Midnight Echo")).toBeTruthy();
-        expect(screen.getByText("song • dreamy")).toBeTruthy();
+        expect(screen.getByText("Song • Dreamy")).toBeTruthy();
       });
     });
 

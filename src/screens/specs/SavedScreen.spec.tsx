@@ -109,7 +109,7 @@ describe("SavedScreen", () => {
     renderWithProviders(<SavedScreen />);
 
     expect(screen.getByText("Moonlight Sonnet")).toBeTruthy();
-    expect(screen.getByText("poem • dreamy")).toBeTruthy();
+    expect(screen.getByText("Poem • Dreamy")).toBeTruthy();
   });
 
   it("should render multiple saved creations", () => {
@@ -121,11 +121,11 @@ describe("SavedScreen", () => {
 
     // Check first creation
     expect(screen.getByText("Moonlight Sonnet")).toBeTruthy();
-    expect(screen.getByText("poem • dreamy")).toBeTruthy();
+    expect(screen.getByText("Poem • Dreamy")).toBeTruthy();
 
     // Check second creation
     expect(screen.getByText("City Nights Rap")).toBeTruthy();
-    expect(screen.getByText("rap • dark")).toBeTruthy();
+    expect(screen.getByText("Rap • Dark")).toBeTruthy();
   });
 
   it("should open a saved creation and navigate to result when pressed", () => {
