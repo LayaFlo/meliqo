@@ -24,9 +24,11 @@ export default function HomeScreen() {
   const [selectedMood, setSelectedMood] = useState<CreationMood>("dreamy");
   const [inputMode, setInputMode] = useState<InputMode>("text");
 
-  const isGenerateDisabled = userInput.trim() === "";
+  const isGenerateDisabled = inputMode !== "text" || userInput.trim() === "";
 
   const handleGenerate = () => {
+    if (isGenerateDisabled) return;
+
     const creation = createMockGeneration({
       prompt: userInput,
       format: selectedFormat,
@@ -88,16 +90,30 @@ export default function HomeScreen() {
           <Text variant="titleMedium" style={styles.sectionTitle}>
             What should we write from?
           </Text>
-          <TextInput
-            mode="outlined"
-            label="Your words or thoughts"
-            placeholder="moonlight, city rain, missing someone..."
-            value={userInput}
-            onChangeText={setUserInput}
-            multiline
-            numberOfLines={5}
-            style={styles.input}
-          />
+          {inputMode === "text" ? (
+            <TextInput
+              mode="outlined"
+              label="Your words or thoughts"
+              placeholder="moonlight, city rain, missing someone..."
+              value={userInput}
+              onChangeText={setUserInput}
+              multiline
+              numberOfLines={5}
+              style={styles.input}
+            />
+          ) : (
+            <View style={styles.voiceCard}>
+              <Text variant="titleMedium" style={styles.voiceTitle}>
+                Voice input coming soon.
+              </Text>
+              <Text variant="bodyMedium" style={styles.voiceSubtitle}>
+                Stay tuned for voice input functionality!
+              </Text>
+              <Button mode="outlined" icon="microphone-outline" disabled>
+                Start Recording
+              </Button>
+            </View>
+          )}
         </View>
         <View style={styles.section}>
           <Text variant="titleMedium" style={styles.sectionTitle}>
@@ -197,6 +213,24 @@ const styles = StyleSheet.create({
   input: {
     minHeight: 140,
     backgroundColor: theme.colors.surface,
+  },
+  voiceCard: {
+    minHeight: 140,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+    borderRadius: 16,
+    backgroundColor: theme.colors.surface,
+  },
+  voiceTitle: {
+    fontWeight: "700",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  voiceSubtitle: {
+    color: theme.colors.onSurfaceVariant,
+    textAlign: "center",
+    marginBottom: 18,
   },
   chipRow: {
     flexDirection: "row",

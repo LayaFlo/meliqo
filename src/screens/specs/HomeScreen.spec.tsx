@@ -118,6 +118,20 @@ describe("HomeScreen", () => {
     expect(button.props.accessibilityState.disabled).toBe(true);
   });
 
+  it("should disable the generate button in voice mode", () => {
+    renderWithProviders(<HomeScreen />);
+
+    fireEvent.changeText(
+      screen.getByPlaceholderText("moonlight, city rain, missing someone..."),
+      "moon rain",
+    );
+    fireEvent.press(screen.getByText("Speak"));
+
+    const button = screen.getByTestId("generate-button");
+
+    expect(button.props.accessibilityState.disabled).toBe(true);
+  });
+
   it("should generate creation, store it in context, and navigate to result", async () => {
     const mockCreation = {
       id: "test-id",
