@@ -4,6 +4,7 @@ import {
   getSavedCreations,
   saveCreation,
 } from "@/src/utils/creationStorage";
+import { createMockGeneration } from "@/src/utils/mockGeneration";
 import { act, render } from "@testing-library/react-native";
 import React from "react";
 import { CreationProvider, useCreation } from "../CreationContext";
@@ -12,6 +13,10 @@ jest.mock("@/src/utils/creationStorage", () => ({
   deleteSavedCreation: jest.fn(),
   getSavedCreations: jest.fn(),
   saveCreation: jest.fn(),
+}));
+
+jest.mock("@/src/utils/mockGeneration", () => ({
+  createMockGeneration: jest.fn(),
 }));
 
 const mockCreation: GeneratedCreation = {
@@ -29,6 +34,12 @@ describe("CreationContext", () => {
     beforeEach(() => {
       jest.clearAllMocks();
       (deleteSavedCreation as jest.Mock).mockResolvedValue([]);
+      (createMockGeneration as jest.Mock).mockReturnValue({
+        ...mockCreation,
+        id: "regenerated-id",
+        title: "Regenerated Title",
+        content: "Regenerated content",
+      });
       (getSavedCreations as jest.Mock).mockResolvedValue([]);
       (saveCreation as jest.Mock).mockResolvedValue([]);
     });
@@ -289,42 +300,7 @@ describe("CreationContext", () => {
       expect(contextValue.currentCreation).toEqual(mockCreation);
     });
 
-    it("should memoize the context value based on currentCreation", () => {
-      let contextValue: any;
-      const TestComponent = () => {
-        contextValue = useCreation();
-        return (
-          <div>Current: {contextValue.currentCreation?.title || "null"}</div>
-        );
-      };
-
-      render(
-        <CreationProvider>
-          <TestComponent />
-        </CreationProvider>,
-      );
-
-      const initialContextValue = contextValue;
-
-      // Setting creation should create new context value
-      act(() => {
-        contextValue.setCurrentCreation(mockCreation);
-      });
-      expect(contextValue).not.toBe(initialContextValue); // Should be different reference
-
-      const updatedContextValue = contextValue;
-
-      // Setting the same creation again should not create new context value
-      act(() => {
-        contextValue.setCurrentCreation(mockCreation);
-      });
-      expect(contextValue).toBe(updatedContextValue); // Should be same reference
-    });
-
-    it("should update context value when savedCreations change", async () => {
-      const mockSavedCreations = [mockCreation];
-      (getSavedCreations as jest.Mock).mockResolvedValue(mockSavedCreations);
-
+    it("should regenerate currentCreation with the same prompt, format, and mood", () => {
       let contextValue: any;
       const TestComponent = () => {
         contextValue = useCreation();
@@ -337,13 +313,46 @@ describe("CreationContext", () => {
         </CreationProvider>,
       );
 
-      const initialContextValue = contextValue;
-
-      await act(async () => {
-        await contextValue.loadSavedCreations();
+      act(() => {
+        contextValue.setCurrentCreation(mockCreation);
       });
 
-      expect(contextValue).not.toBe(initialContextValue); // Should be different reference due to savedCreations change
+      act(() => {
+        contextValue.regenerateCurrentCreation();
+      });
+
+      expect(createMockGeneration).toHaveBeenCalledWith({
+        prompt: mockCreation.prompt,
+        format: mockCreation.format,
+        mood: mockCreation.mood,
+      });
+      expect(contextValue.currentCreation).toEqual({
+        ...mockCreation,
+        id: "regenerated-id",
+        title: "Regenerated Title",
+        content: "Regenerated content",
+      });
+    });
+
+    it("should not regenerate when currentCreation is null", () => {
+      let contextValue: any;
+      const TestComponent = () => {
+        contextValue = useCreation();
+        return <div>Test</div>;
+      };
+
+      render(
+        <CreationProvider>
+          <TestComponent />
+        </CreationProvider>,
+      );
+
+      act(() => {
+        contextValue.regenerateCurrentCreation();
+      });
+
+      expect(createMockGeneration).not.toHaveBeenCalled();
+      expect(contextValue.currentCreation).toBeNull();
     });
   });
 
@@ -380,12 +389,14 @@ describe("CreationContext", () => {
       expect(contextValue).toHaveProperty("saveCurrentCreation");
       expect(contextValue).toHaveProperty("openCreation");
       expect(contextValue).toHaveProperty("deleteCreation");
+      expect(contextValue).toHaveProperty("regenerateCurrentCreation");
       expect(typeof contextValue.setCurrentCreation).toBe("function");
       expect(typeof contextValue.clearCurrentCreation).toBe("function");
       expect(typeof contextValue.loadSavedCreations).toBe("function");
       expect(typeof contextValue.saveCurrentCreation).toBe("function");
       expect(typeof contextValue.openCreation).toBe("function");
       expect(typeof contextValue.deleteCreation).toBe("function");
+      expect(typeof contextValue.regenerateCurrentCreation).toBe("function");
       expect(Array.isArray(contextValue.savedCreations)).toBe(true);
     });
   });

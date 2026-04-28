@@ -4,6 +4,7 @@ import {
   getSavedCreations,
   saveCreation,
 } from "@/src/utils/creationStorage";
+import { createMockGeneration } from "@/src/utils/mockGeneration";
 import {
   createContext,
   ReactNode,
@@ -22,6 +23,7 @@ type CreationContextValue = {
   saveCurrentCreation: () => Promise<void>;
   openCreation: (creation: GeneratedCreation) => void;
   deleteCreation: (id: string) => Promise<void>;
+  regenerateCurrentCreation?: () => void;
 };
 
 const CreationContext = createContext<CreationContextValue | null>(null);
@@ -67,6 +69,18 @@ export function CreationProvider({ children }: CreationProviderProps) {
     [currentCreation?.id],
   );
 
+  const regenerateCurrentCreation = useCallback(() => {
+    if (!currentCreation) return;
+
+    const nextCreation = createMockGeneration({
+      prompt: currentCreation.prompt,
+      format: currentCreation.format,
+      mood: currentCreation.mood,
+    });
+
+    setCurrentCreation(nextCreation);
+  }, [currentCreation]);
+
   const value: CreationContextValue = useMemo(
     () => ({
       currentCreation,
@@ -77,12 +91,14 @@ export function CreationProvider({ children }: CreationProviderProps) {
       saveCurrentCreation,
       openCreation,
       deleteCreation,
+      regenerateCurrentCreation,
     }),
     [
       currentCreation,
       deleteCreation,
       loadSavedCreations,
       openCreation,
+      regenerateCurrentCreation,
       saveCurrentCreation,
       savedCreations,
     ],
