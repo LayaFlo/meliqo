@@ -12,14 +12,31 @@ jest.mock("expo-router", () => ({
 }));
 
 describe("HomeScreen", () => {
+  beforeEach(() => {
+    mockPush.mockClear();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it("should render the create screen content", () => {
     renderWithProviders(<HomeScreen />);
 
     expect(screen.getByText("Meliqo")).toBeTruthy();
+    expect(screen.getByText("Saved")).toBeTruthy();
     expect(screen.getByText("What should we write from?")).toBeTruthy();
     expect(screen.getByText("Choose a format")).toBeTruthy();
     expect(screen.getByText("Choose a mood")).toBeTruthy();
     expect(screen.getByText("Create with AI")).toBeTruthy();
+  });
+
+  it("should navigate to saved creations when Saved is pressed", () => {
+    renderWithProviders(<HomeScreen />);
+
+    fireEvent.press(screen.getByText("Saved"));
+
+    expect(mockPush).toHaveBeenCalledWith("/saved");
   });
 
   it("should render format options", () => {
@@ -75,54 +92,7 @@ describe("HomeScreen", () => {
     expect(button.props.accessibilityState.disabled).toBe(true);
   });
 
-  it("should generate creation and navigate to result when button is pressed", async () => {
-    const mockCreation = {
-      id: "test-id",
-      title: "Test Creation",
-      content: "Test content",
-      format: "song" as const,
-      mood: "dreamy" as const,
-      prompt: "test prompt",
-      createdAt: "2024-01-01T00:00:00.000Z",
-    };
-
-    const spy = jest
-      .spyOn(mockGenerationModule, "createMockGeneration")
-      .mockReturnValue(mockCreation);
-
-    renderWithProviders(<HomeScreen />);
-
-    // Enter text
-    fireEvent.changeText(
-      screen.getByPlaceholderText("moonlight, city rain, missing someone..."),
-      "test prompt",
-    );
-
-    // Select different format and mood
-    fireEvent.press(screen.getByText("Poem"));
-    fireEvent.press(screen.getByText("Sad"));
-
-    // Click generate
-    fireEvent.press(screen.getByTestId("generate-button"));
-
-    // Verify generation was called with correct parameters
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith({
-        prompt: "test prompt",
-        format: "poem",
-        mood: "sad",
-      });
-    });
-
-    // Verify navigation occurred
-    await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith("/result");
-    });
-
-    spy.mockRestore();
-  });
-
-  it("should set the created generation in context", async () => {
+  it("should generate creation, store it in context, and navigate to result", async () => {
     const mockCreation = {
       id: "test-id",
       title: "Test Creation",
@@ -145,18 +115,27 @@ describe("HomeScreen", () => {
 
     renderWithProviders(<TestWrapper />);
 
-    // Enter text and generate
     fireEvent.changeText(
       screen.getByPlaceholderText("moonlight, city rain, missing someone..."),
       "test prompt",
     );
+
+    fireEvent.press(screen.getByText("Poem"));
+    fireEvent.press(screen.getByText("Sad"));
+
     fireEvent.press(screen.getByTestId("generate-button"));
 
-    // Verify context was updated
     await waitFor(() => {
-      expect(contextValue.currentCreation).toEqual(mockCreation);
+      expect(spy).toHaveBeenCalledWith({
+        prompt: "test prompt",
+        format: "poem",
+        mood: "sad",
+      });
     });
 
-    spy.mockRestore();
+    await waitFor(() => {
+      expect(contextValue.currentCreation).toEqual(mockCreation);
+      expect(mockPush).toHaveBeenCalledWith("/result");
+    });
   });
 });

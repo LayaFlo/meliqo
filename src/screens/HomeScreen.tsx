@@ -43,9 +43,14 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text variant="headlineLarge" style={styles.title}>
-            Meliqo
-          </Text>
+          <View style={styles.headerTop}>
+            <Text variant="headlineLarge" style={styles.title}>
+              Meliqo
+            </Text>
+            <Button compact onPress={() => router.push("/saved")}>
+              Saved
+            </Button>
+          </View>
           <Text variant="bodyLarge" style={styles.subtitle}>
             Turn scattered thoughts into songs, poems, and lyrical stories.
           </Text>
@@ -134,9 +139,14 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 40,
   },
+  headerTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
   title: {
     fontWeight: "700",
-    marginBottom: 8,
   },
   subtitle: {
     color: theme.colors.onSurfaceVariant,
