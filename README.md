@@ -61,6 +61,7 @@ Current progress:
 - [ ] AI-assisted collaborative editing
 - [ ] Voice input
 - [x] Local persistence
+- [x] Share generated lyrics
 - [ ] Backend integration
 
 ---
