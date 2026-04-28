@@ -30,3 +30,18 @@ export async function saveCreation(
 
   return updatedCreations;
 }
+
+export async function deleteSavedCreation(
+  id: string,
+): Promise<GeneratedCreation[]> {
+  const existingCreations = await getSavedCreations();
+
+  const updatedCreations = existingCreations.filter((item) => item.id !== id);
+
+  await AsyncStorage.setItem(
+    SAVED_CREATIONS_KEY,
+    JSON.stringify(updatedCreations),
+  );
+
+  return updatedCreations;
+}

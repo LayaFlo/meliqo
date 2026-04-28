@@ -1,6 +1,10 @@
 import type { GeneratedCreation } from "@/src/types/creation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getSavedCreations, saveCreation } from "../creationStorage";
+import {
+  deleteSavedCreation,
+  getSavedCreations,
+  saveCreation,
+} from "../creationStorage";
 
 jest.mock("@react-native-async-storage/async-storage", () => ({
   getItem: jest.fn(),
@@ -60,7 +64,7 @@ describe("creationStorage", () => {
       expect(result).toEqual(storedCreations);
     });
 
-    it("should handle invalid JSON gracefully", async () => {
+    it("should throw when stored JSON is invalid", async () => {
       (AsyncStorage.getItem as jest.Mock).mockResolvedValue("invalid json");
 
       await expect(getSavedCreations()).rejects.toThrow();
@@ -162,6 +166,55 @@ describe("creationStorage", () => {
       expect(result).toEqual(expectedCreations);
       expect(result[0].id).toBe("test-id-1");
       expect(result[1].id).toBe("test-id-2");
+    });
+  });
+
+  describe("deleteSavedCreation", () => {
+    it("should delete a saved creation by ID", async () => {
+      const existingCreations = [mockCreation, mockCreation2];
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
+        JSON.stringify(existingCreations),
+      );
+      (AsyncStorage.setItem as jest.Mock).mockResolvedValue(undefined);
+
+      const result = await deleteSavedCreation(mockCreation.id);
+
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+        "meliqo:saved-creations",
+        JSON.stringify([mockCreation2]),
+      );
+      expect(result).toEqual([mockCreation2]);
+    });
+
+    it("should keep saved creations unchanged when deleting an unknown ID", async () => {
+      const existingCreations = [mockCreation, mockCreation2];
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
+        JSON.stringify(existingCreations),
+      );
+      (AsyncStorage.setItem as jest.Mock).mockResolvedValue(undefined);
+
+      const result = await deleteSavedCreation("missing-id");
+
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+        "meliqo:saved-creations",
+        JSON.stringify(existingCreations),
+      );
+      expect(result).toEqual(existingCreations);
+    });
+
+    it("should return empty array after deleting the only saved creation", async () => {
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
+        JSON.stringify([mockCreation]),
+      );
+      (AsyncStorage.setItem as jest.Mock).mockResolvedValue(undefined);
+
+      const result = await deleteSavedCreation(mockCreation.id);
+
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+        "meliqo:saved-creations",
+        JSON.stringify([]),
+      );
+      expect(result).toEqual([]);
     });
   });
 });
