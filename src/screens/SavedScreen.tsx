@@ -1,11 +1,13 @@
 import { useCreation } from "@/src/context/CreationContext";
 import { theme } from "@/src/theme/theme";
+import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { Card, Surface, Text } from "react-native-paper";
 
 export default function SavedScreen() {
-  const { savedCreations, loadSavedCreations } = useCreation();
+  const router = useRouter();
+  const { savedCreations, loadSavedCreations, openCreation } = useCreation();
 
   useEffect(() => {
     loadSavedCreations();
@@ -18,7 +20,14 @@ export default function SavedScreen() {
           Saved creations
         </Text>
         {savedCreations.map((creation) => (
-          <Card key={creation.id} style={styles.card}>
+          <Card
+            key={creation.id}
+            onPress={() => {
+              openCreation(creation);
+              router.push("/result");
+            }}
+            style={styles.card}
+          >
             <Card.Content>
               <Text variant="titleMedium">{creation.title}</Text>
               <Text variant="bodyMedium" style={styles.meta}>

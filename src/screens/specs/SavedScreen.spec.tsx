@@ -2,11 +2,18 @@ import { useCreation } from "@/src/context/CreationContext";
 import SavedScreen from "@/src/screens/SavedScreen";
 import { renderWithProviders } from "@/src/test/renderWithProviders";
 import type { GeneratedCreation } from "@/src/types/creation";
-import { screen, waitFor } from "@testing-library/react-native";
+import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 
 jest.mock("@/src/context/CreationContext", () => ({
   ...jest.requireActual("@/src/context/CreationContext"),
   useCreation: jest.fn(),
+}));
+
+const mockPush = jest.fn();
+jest.mock("expo-router", () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
 }));
 
 describe("SavedScreen", () => {
@@ -32,12 +39,30 @@ describe("SavedScreen", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockPush.mockClear();
   });
 
-  it("should render the title", () => {
+  function mockUseCreation({
+    savedCreations,
+    loadSavedCreations = jest.fn(),
+    openCreation = jest.fn(),
+  }: {
+    savedCreations: GeneratedCreation[];
+    loadSavedCreations?: jest.Mock;
+    openCreation?: jest.Mock;
+  }) {
     (useCreation as jest.Mock).mockReturnValue({
+      savedCreations,
+      loadSavedCreations,
+      openCreation,
+    });
+
+    return { loadSavedCreations, openCreation };
+  }
+
+  it("should render the title", () => {
+    mockUseCreation({
       savedCreations: [],
-      loadSavedCreations: jest.fn(),
     });
 
     renderWithProviders(<SavedScreen />);
@@ -47,7 +72,7 @@ describe("SavedScreen", () => {
 
   it("should call loadSavedCreations on mount", async () => {
     const mockLoadSavedCreations = jest.fn();
-    (useCreation as jest.Mock).mockReturnValue({
+    mockUseCreation({
       savedCreations: [],
       loadSavedCreations: mockLoadSavedCreations,
     });
@@ -60,9 +85,8 @@ describe("SavedScreen", () => {
   });
 
   it("should render no saved creation titles when no saved creations exist", () => {
-    (useCreation as jest.Mock).mockReturnValue({
+    mockUseCreation({
       savedCreations: [],
-      loadSavedCreations: jest.fn(),
     });
 
     renderWithProviders(<SavedScreen />);
@@ -73,9 +97,8 @@ describe("SavedScreen", () => {
   });
 
   it("should render a single saved creation", () => {
-    (useCreation as jest.Mock).mockReturnValue({
+    mockUseCreation({
       savedCreations: [mockCreation1],
-      loadSavedCreations: jest.fn(),
     });
 
     renderWithProviders(<SavedScreen />);
@@ -85,9 +108,8 @@ describe("SavedScreen", () => {
   });
 
   it("should render multiple saved creations", () => {
-    (useCreation as jest.Mock).mockReturnValue({
+    mockUseCreation({
       savedCreations: [mockCreation1, mockCreation2],
-      loadSavedCreations: jest.fn(),
     });
 
     renderWithProviders(<SavedScreen />);
@@ -101,50 +123,18 @@ describe("SavedScreen", () => {
     expect(screen.getByText("rap • dark")).toBeTruthy();
   });
 
-  it("should display format and mood metadata correctly", () => {
-    (useCreation as jest.Mock).mockReturnValue({
+  it("should open a saved creation and navigate to result when pressed", () => {
+    const mockOpenCreation = jest.fn();
+    mockUseCreation({
       savedCreations: [mockCreation1],
-      loadSavedCreations: jest.fn(),
+      openCreation: mockOpenCreation,
     });
 
     renderWithProviders(<SavedScreen />);
 
-    expect(screen.getByText("poem • dreamy")).toBeTruthy();
-  });
+    fireEvent.press(screen.getByText(mockCreation1.title));
 
-  it("should handle different formats and moods", () => {
-    const creationWithDifferentFormat: GeneratedCreation = {
-      ...mockCreation1,
-      format: "song",
-      mood: "romantic",
-    };
-
-    (useCreation as jest.Mock).mockReturnValue({
-      savedCreations: [creationWithDifferentFormat],
-      loadSavedCreations: jest.fn(),
-    });
-
-    renderWithProviders(<SavedScreen />);
-
-    expect(screen.getByText("song • romantic")).toBeTruthy();
-  });
-
-  it("should render all creation titles from savedCreations array", () => {
-    const creations = [
-      { ...mockCreation1, id: "id-1", title: "Creation One" },
-      { ...mockCreation1, id: "id-2", title: "Creation Two" },
-      { ...mockCreation1, id: "id-3", title: "Creation Three" },
-    ];
-
-    (useCreation as jest.Mock).mockReturnValue({
-      savedCreations: creations,
-      loadSavedCreations: jest.fn(),
-    });
-
-    renderWithProviders(<SavedScreen />);
-
-    expect(screen.getByText("Creation One")).toBeTruthy();
-    expect(screen.getByText("Creation Two")).toBeTruthy();
-    expect(screen.getByText("Creation Three")).toBeTruthy();
+    expect(mockOpenCreation).toHaveBeenCalledWith(mockCreation1);
+    expect(mockPush).toHaveBeenCalledWith("/result");
   });
 });
