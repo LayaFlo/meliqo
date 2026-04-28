@@ -50,3 +50,5 @@ export const REFINEMENT_LABELS: Record<RefinementType, string> = {
   poetic: "More poetic",
   shorter: "Shorter",
 };
+
+export type InputMode = "text" | "voice";
