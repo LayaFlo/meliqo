@@ -41,3 +41,12 @@ export type GeneratedCreation = {
   prompt: string;
   createdAt: string;
 };
+
+export type RefinementType = "softer" | "darker" | "poetic" | "shorter";
+
+export const REFINEMENT_LABELS: Record<RefinementType, string> = {
+  softer: "Make it softer",
+  darker: "Make it darker",
+  poetic: "More poetic",
+  shorter: "Shorter",
+};
