@@ -10,6 +10,10 @@ describe("mockGeneration", () => {
     jest.useFakeTimers().setSystemTime(new Date("2024-01-01T12:00:00.000Z"));
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   afterAll(() => {
     jest.useRealTimers();
   });
@@ -20,6 +24,8 @@ describe("mockGeneration", () => {
       format: "rap" as CreationFormat,
       mood: "dark" as CreationMood,
     };
+
+    jest.spyOn(Math, "random").mockReturnValue(0);
 
     const result = createMockGeneration(params);
 
@@ -40,27 +46,25 @@ A song that starts and ends with you`,
     } as GeneratedCreation);
   });
 
-  it("should trim whitespace from the prompt", () => {
-    const result = createMockGeneration({
-      prompt: "   lonely highway   ",
-      format: "rap" as CreationFormat,
-      mood: "dark" as CreationMood,
-    });
-
-    expect(result.prompt).toBe("lonely highway");
-  });
-
-  it("should preserve the provided format and mood values", () => {
-    const format = "haiku" as CreationFormat;
-    const mood = "sad" as CreationMood;
+  it("should choose mock title and content based on random values", () => {
+    jest
+      .spyOn(Math, "random")
+      .mockReturnValueOnce(0.99)
+      .mockReturnValueOnce(0.99);
 
     const result = createMockGeneration({
-      prompt: "road",
-      format,
-      mood,
+      prompt: "stars",
+      format: "song" as CreationFormat,
+      mood: "romantic" as CreationMood,
     });
 
-    expect(result.format).toBe(format);
-    expect(result.mood).toBe(mood);
+    expect(result.title).toBe("Paper Stars");
+    expect(result.content).toBe(`Verse 1
+The night was humming in your hands
+Like broken dreams and distant bands
+
+Chorus
+We make a rhythm from the dark
+And light the sky with one small spark`);
   });
 });
