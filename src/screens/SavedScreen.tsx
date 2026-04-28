@@ -100,7 +100,6 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   meta: {
-    color: theme.colors.onSurfaceVariant,
     marginTop: 4,
   },
 });

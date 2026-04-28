@@ -73,7 +73,6 @@ export default function ResultScreen() {
           <CreationMetadata
             format={currentCreation.format}
             mood={currentCreation.mood}
-            style={styles.metadata}
           />
         </View>
         <Card style={styles.card}>
@@ -137,9 +136,6 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: "700",
     marginBottom: 8,
-  },
-  metadata: {
-    color: theme.colors.onSurfaceVariant,
   },
   card: {
     marginBottom: 32,
