@@ -4,12 +4,6 @@ import { renderWithProviders } from "@/src/test/renderWithProviders";
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import React from "react";
 
-jest.mock("@react-native-async-storage/async-storage", () =>
-  jest.requireActual(
-    "@react-native-async-storage/async-storage/jest/async-storage-mock",
-  ),
-);
-
 const mockBack = jest.fn();
 const mockReplace = jest.fn();
 const mockPush = jest.fn();

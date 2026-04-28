@@ -33,10 +33,10 @@ export function CreationProvider({ children }: CreationProviderProps) {
     setCurrentCreation(null);
   };
 
-  const loadSavedCreations = async () => {
+  const loadSavedCreations = useCallback(async () => {
     const creations = await getSavedCreations();
     setSavedCreations(creations);
-  };
+  }, []);
 
   const saveCurrentCreation = useCallback(async () => {
     if (!currentCreation) return;
@@ -54,7 +54,7 @@ export function CreationProvider({ children }: CreationProviderProps) {
       loadSavedCreations,
       saveCurrentCreation,
     }),
-    [currentCreation, saveCurrentCreation, savedCreations],
+    [currentCreation, loadSavedCreations, saveCurrentCreation, savedCreations],
   );
 
   return (
