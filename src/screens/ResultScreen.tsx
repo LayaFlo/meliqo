@@ -19,7 +19,7 @@ export default function ResultScreen() {
     useCreation();
 
   const handleRegenerate = () => {
-    regenerateCurrentCreation();
+    regenerateCurrentCreation?.();
   };
 
   const handleSave = async () => {
