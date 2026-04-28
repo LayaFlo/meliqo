@@ -5,6 +5,7 @@ import {
   saveCreation,
 } from "@/src/utils/creationStorage";
 import { createMockGeneration } from "@/src/utils/mockGeneration";
+import { refineMockCreation } from "@/src/utils/mockRefinement";
 import { act, render } from "@testing-library/react-native";
 import React from "react";
 import { CreationProvider, useCreation } from "../CreationContext";
@@ -17,6 +18,10 @@ jest.mock("@/src/utils/creationStorage", () => ({
 
 jest.mock("@/src/utils/mockGeneration", () => ({
   createMockGeneration: jest.fn(),
+}));
+
+jest.mock("@/src/utils/mockRefinement", () => ({
+  refineMockCreation: jest.fn(),
 }));
 
 const mockCreation: GeneratedCreation = {
@@ -39,6 +44,11 @@ describe("CreationContext", () => {
         id: "regenerated-id",
         title: "Regenerated Title",
         content: "Regenerated content",
+      });
+      (refineMockCreation as jest.Mock).mockReturnValue({
+        ...mockCreation,
+        id: "refined-id",
+        content: "Refined content",
       });
       (getSavedCreations as jest.Mock).mockResolvedValue([]);
       (saveCreation as jest.Mock).mockResolvedValue([]);
@@ -354,6 +364,56 @@ describe("CreationContext", () => {
       expect(createMockGeneration).not.toHaveBeenCalled();
       expect(contextValue.currentCreation).toBeNull();
     });
+
+    it("should refine currentCreation with the selected refinement", () => {
+      let contextValue: any;
+      const TestComponent = () => {
+        contextValue = useCreation();
+        return <div>Test</div>;
+      };
+
+      render(
+        <CreationProvider>
+          <TestComponent />
+        </CreationProvider>,
+      );
+
+      act(() => {
+        contextValue.setCurrentCreation(mockCreation);
+      });
+
+      act(() => {
+        contextValue.refineCurrentCreation("poetic");
+      });
+
+      expect(refineMockCreation).toHaveBeenCalledWith(mockCreation, "poetic");
+      expect(contextValue.currentCreation).toEqual({
+        ...mockCreation,
+        id: "refined-id",
+        content: "Refined content",
+      });
+    });
+
+    it("should not refine when currentCreation is null", () => {
+      let contextValue: any;
+      const TestComponent = () => {
+        contextValue = useCreation();
+        return <div>Test</div>;
+      };
+
+      render(
+        <CreationProvider>
+          <TestComponent />
+        </CreationProvider>,
+      );
+
+      act(() => {
+        contextValue.refineCurrentCreation("shorter");
+      });
+
+      expect(refineMockCreation).not.toHaveBeenCalled();
+      expect(contextValue.currentCreation).toBeNull();
+    });
   });
 
   describe("useCreation", () => {
@@ -390,6 +450,7 @@ describe("CreationContext", () => {
       expect(contextValue).toHaveProperty("openCreation");
       expect(contextValue).toHaveProperty("deleteCreation");
       expect(contextValue).toHaveProperty("regenerateCurrentCreation");
+      expect(contextValue).toHaveProperty("refineCurrentCreation");
       expect(typeof contextValue.setCurrentCreation).toBe("function");
       expect(typeof contextValue.clearCurrentCreation).toBe("function");
       expect(typeof contextValue.loadSavedCreations).toBe("function");
@@ -397,6 +458,7 @@ describe("CreationContext", () => {
       expect(typeof contextValue.openCreation).toBe("function");
       expect(typeof contextValue.deleteCreation).toBe("function");
       expect(typeof contextValue.regenerateCurrentCreation).toBe("function");
+      expect(typeof contextValue.refineCurrentCreation).toBe("function");
       expect(Array.isArray(contextValue.savedCreations)).toBe(true);
     });
   });

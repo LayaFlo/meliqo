@@ -1,10 +1,11 @@
-import type { GeneratedCreation } from "@/src/types/creation";
+import type { GeneratedCreation, RefinementType } from "@/src/types/creation";
 import {
   deleteSavedCreation,
   getSavedCreations,
   saveCreation,
 } from "@/src/utils/creationStorage";
 import { createMockGeneration } from "@/src/utils/mockGeneration";
+import { refineMockCreation } from "@/src/utils/mockRefinement";
 import {
   createContext,
   ReactNode,
@@ -24,6 +25,7 @@ type CreationContextValue = {
   openCreation: (creation: GeneratedCreation) => void;
   deleteCreation: (id: string) => Promise<void>;
   regenerateCurrentCreation?: () => void;
+  refineCurrentCreation: (refinement: RefinementType) => void;
 };
 
 const CreationContext = createContext<CreationContextValue | null>(null);
@@ -81,6 +83,15 @@ export function CreationProvider({ children }: CreationProviderProps) {
     setCurrentCreation(nextCreation);
   }, [currentCreation]);
 
+  const refineCurrentCreation = useCallback(
+    (refinement: RefinementType) => {
+      if (!currentCreation) return;
+
+      setCurrentCreation(refineMockCreation(currentCreation, refinement));
+    },
+    [currentCreation],
+  );
+
   const value: CreationContextValue = useMemo(
     () => ({
       currentCreation,
@@ -92,12 +103,14 @@ export function CreationProvider({ children }: CreationProviderProps) {
       openCreation,
       deleteCreation,
       regenerateCurrentCreation,
+      refineCurrentCreation,
     }),
     [
       currentCreation,
       deleteCreation,
       loadSavedCreations,
       openCreation,
+      refineCurrentCreation,
       regenerateCurrentCreation,
       saveCurrentCreation,
       savedCreations,
