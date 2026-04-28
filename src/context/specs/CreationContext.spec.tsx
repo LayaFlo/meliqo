@@ -1,10 +1,15 @@
 import type { GeneratedCreation } from "@/src/types/creation";
-import { getSavedCreations, saveCreation } from "@/src/utils/creationStorage";
+import {
+  deleteSavedCreation,
+  getSavedCreations,
+  saveCreation,
+} from "@/src/utils/creationStorage";
 import { act, render } from "@testing-library/react-native";
 import React from "react";
 import { CreationProvider, useCreation } from "../CreationContext";
 
 jest.mock("@/src/utils/creationStorage", () => ({
+  deleteSavedCreation: jest.fn(),
   getSavedCreations: jest.fn(),
   saveCreation: jest.fn(),
 }));
@@ -23,6 +28,7 @@ describe("CreationContext", () => {
   describe("CreationProvider", () => {
     beforeEach(() => {
       jest.clearAllMocks();
+      (deleteSavedCreation as jest.Mock).mockResolvedValue([]);
       (getSavedCreations as jest.Mock).mockResolvedValue([]);
       (saveCreation as jest.Mock).mockResolvedValue([]);
     });
@@ -204,6 +210,85 @@ describe("CreationContext", () => {
       expect(saveCreation).not.toHaveBeenCalled();
     });
 
+    it("should delete creation from saved creations", async () => {
+      const updatedCreations = [mockCreation];
+      (deleteSavedCreation as jest.Mock).mockResolvedValue(updatedCreations);
+
+      let contextValue: any;
+      const TestComponent = () => {
+        contextValue = useCreation();
+        return <div>Test</div>;
+      };
+
+      render(
+        <CreationProvider>
+          <TestComponent />
+        </CreationProvider>,
+      );
+
+      await act(async () => {
+        await contextValue.deleteCreation("2");
+      });
+
+      expect(deleteSavedCreation).toHaveBeenCalledWith("2");
+      expect(contextValue.savedCreations).toEqual(updatedCreations);
+    });
+
+    it("should clear currentCreation when deleting the current creation", async () => {
+      (deleteSavedCreation as jest.Mock).mockResolvedValue([]);
+
+      let contextValue: any;
+      const TestComponent = () => {
+        contextValue = useCreation();
+        return <div>Test</div>;
+      };
+
+      render(
+        <CreationProvider>
+          <TestComponent />
+        </CreationProvider>,
+      );
+
+      act(() => {
+        contextValue.setCurrentCreation(mockCreation);
+      });
+
+      await act(async () => {
+        await contextValue.deleteCreation(mockCreation.id);
+      });
+
+      expect(deleteSavedCreation).toHaveBeenCalledWith(mockCreation.id);
+      expect(contextValue.savedCreations).toEqual([]);
+      expect(contextValue.currentCreation).toBeNull();
+    });
+
+    it("should keep currentCreation when deleting a different creation", async () => {
+      (deleteSavedCreation as jest.Mock).mockResolvedValue([]);
+
+      let contextValue: any;
+      const TestComponent = () => {
+        contextValue = useCreation();
+        return <div>Test</div>;
+      };
+
+      render(
+        <CreationProvider>
+          <TestComponent />
+        </CreationProvider>,
+      );
+
+      act(() => {
+        contextValue.setCurrentCreation(mockCreation);
+      });
+
+      await act(async () => {
+        await contextValue.deleteCreation("other-id");
+      });
+
+      expect(deleteSavedCreation).toHaveBeenCalledWith("other-id");
+      expect(contextValue.currentCreation).toEqual(mockCreation);
+    });
+
     it("should memoize the context value based on currentCreation", () => {
       let contextValue: any;
       const TestComponent = () => {
@@ -294,11 +379,13 @@ describe("CreationContext", () => {
       expect(contextValue).toHaveProperty("loadSavedCreations");
       expect(contextValue).toHaveProperty("saveCurrentCreation");
       expect(contextValue).toHaveProperty("openCreation");
+      expect(contextValue).toHaveProperty("deleteCreation");
       expect(typeof contextValue.setCurrentCreation).toBe("function");
       expect(typeof contextValue.clearCurrentCreation).toBe("function");
       expect(typeof contextValue.loadSavedCreations).toBe("function");
       expect(typeof contextValue.saveCurrentCreation).toBe("function");
       expect(typeof contextValue.openCreation).toBe("function");
+      expect(typeof contextValue.deleteCreation).toBe("function");
       expect(Array.isArray(contextValue.savedCreations)).toBe(true);
     });
   });

@@ -1,5 +1,9 @@
 import type { GeneratedCreation } from "@/src/types/creation";
-import { getSavedCreations, saveCreation } from "@/src/utils/creationStorage";
+import {
+  deleteSavedCreation,
+  getSavedCreations,
+  saveCreation,
+} from "@/src/utils/creationStorage";
 import {
   createContext,
   ReactNode,
@@ -17,6 +21,7 @@ type CreationContextValue = {
   loadSavedCreations: () => Promise<void>;
   saveCurrentCreation: () => Promise<void>;
   openCreation: (creation: GeneratedCreation) => void;
+  deleteCreation: (id: string) => Promise<void>;
 };
 
 const CreationContext = createContext<CreationContextValue | null>(null);
@@ -50,6 +55,18 @@ export function CreationProvider({ children }: CreationProviderProps) {
     setCurrentCreation(creation);
   }, []);
 
+  const deleteCreation = useCallback(
+    async (id: string) => {
+      const creations = await deleteSavedCreation(id);
+      setSavedCreations(creations);
+
+      if (currentCreation?.id === id) {
+        setCurrentCreation(null);
+      }
+    },
+    [currentCreation?.id],
+  );
+
   const value: CreationContextValue = useMemo(
     () => ({
       currentCreation,
@@ -59,9 +76,11 @@ export function CreationProvider({ children }: CreationProviderProps) {
       loadSavedCreations,
       saveCurrentCreation,
       openCreation,
+      deleteCreation,
     }),
     [
       currentCreation,
+      deleteCreation,
       loadSavedCreations,
       openCreation,
       saveCurrentCreation,
