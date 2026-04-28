@@ -129,6 +129,35 @@ describe("ResultScreen", () => {
       });
     });
 
+    it("should render refinement options", async () => {
+      renderResultScreen(true);
+
+      await waitFor(() => {
+        expect(screen.getByText("Refine with AI")).toBeTruthy();
+        expect(screen.getByText("Make it softer")).toBeTruthy();
+        expect(screen.getByText("Make it darker")).toBeTruthy();
+        expect(screen.getByText("More poetic")).toBeTruthy();
+        expect(screen.getByText("Shorter")).toBeTruthy();
+      });
+    });
+
+    it("should refine the current creation when a refinement option is pressed", async () => {
+      renderResultScreen(true);
+
+      await waitFor(() => {
+        expect(screen.getByText("More poetic")).toBeTruthy();
+      });
+
+      fireEvent.press(screen.getByText("More poetic"));
+
+      await waitFor(() => {
+        expect(screen.getByText(/More poetic version/)).toBeTruthy();
+        expect(
+          screen.getByText(/A song that starts and ends with you/),
+        ).toBeTruthy();
+      });
+    });
+
     it("should navigate to edit screen when Edit button is pressed", async () => {
       renderResultScreen(true);
 

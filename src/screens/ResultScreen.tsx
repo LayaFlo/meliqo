@@ -1,12 +1,14 @@
 import { CreationMetadata } from "@/src/components/CreationMetadata";
 import { useCreation } from "@/src/context/CreationContext";
 import { theme } from "@/src/theme/theme";
+import { REFINEMENT_LABELS, RefinementType } from "@/src/types/creation";
 import { shareCreation } from "@/src/utils/shareCreation";
 import { useRouter } from "expo-router";
 import { ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
   Card,
+  Chip,
   Icon,
   IconButton,
   Surface,
@@ -15,8 +17,19 @@ import {
 
 export default function ResultScreen() {
   const router = useRouter();
-  const { currentCreation, saveCurrentCreation, regenerateCurrentCreation } =
-    useCreation();
+  const {
+    currentCreation,
+    saveCurrentCreation,
+    regenerateCurrentCreation,
+    refineCurrentCreation,
+  } = useCreation();
+
+  const refinementOptions: RefinementType[] = [
+    "softer",
+    "darker",
+    "poetic",
+    "shorter",
+  ];
 
   const handleRegenerate = () => {
     regenerateCurrentCreation?.();
@@ -90,6 +103,22 @@ export default function ResultScreen() {
             </Text>
           </Card.Content>
         </Card>
+        <View style={styles.refinementSection}>
+          <Text variant="titleSmall" style={styles.refinementTitle}>
+            Refine with AI
+          </Text>
+          <View style={styles.refinementRow}>
+            {refinementOptions.map((option) => (
+              <Chip
+                key={option}
+                onPress={() => refineCurrentCreation(option)}
+                style={styles.refinementChip}
+              >
+                {REFINEMENT_LABELS[option]}
+              </Chip>
+            ))}
+          </View>
+        </View>
         <View style={styles.actions}>
           <Button
             testID="action-button"
@@ -156,6 +185,21 @@ const styles = StyleSheet.create({
   },
   lyrics: {
     lineHeight: 30,
+  },
+  refinementSection: {
+    marginBottom: 28,
+  },
+  refinementTitle: {
+    marginBottom: 12,
+    color: theme.colors.onSurfaceVariant,
+  },
+  refinementRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  refinementChip: {
+    backgroundColor: theme.colors.surfaceVariant,
   },
   actions: {
     marginTop: "auto",
