@@ -61,6 +61,10 @@ describe("ResultScreen", () => {
     (shareCreation as jest.Mock).mockResolvedValue(undefined);
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe("when no creation exists", () => {
     it("should render the empty state", () => {
       renderResultScreen(false);
@@ -119,6 +123,7 @@ describe("ResultScreen", () => {
 
       await waitFor(() => {
         expect(screen.getByTestId("action-button")).toBeTruthy();
+        expect(screen.getByText("Regenerate")).toBeTruthy();
         expect(screen.getByText("Save")).toBeTruthy();
         expect(screen.getByText("Share")).toBeTruthy();
       });
@@ -133,6 +138,28 @@ describe("ResultScreen", () => {
       });
 
       expect(mockPush).toHaveBeenCalledWith("/edit");
+    });
+
+    it("should regenerate the current creation when Regenerate is pressed", async () => {
+      jest
+        .spyOn(Math, "random")
+        .mockReturnValueOnce(0.99)
+        .mockReturnValueOnce(0.99);
+
+      renderResultScreen(true);
+
+      await waitFor(() => {
+        expect(screen.getByText("Midnight Echo")).toBeTruthy();
+      });
+
+      fireEvent.press(screen.getByText("Regenerate"));
+
+      await waitFor(() => {
+        expect(screen.getByText("Paper Stars")).toBeTruthy();
+        expect(
+          screen.getByText(/And light the sky with one small spark/),
+        ).toBeTruthy();
+      });
     });
 
     it("should save the current creation when Save is pressed", async () => {

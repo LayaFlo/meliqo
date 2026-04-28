@@ -15,11 +15,12 @@ import {
 
 export default function ResultScreen() {
   const router = useRouter();
-  const { currentCreation, saveCurrentCreation } = useCreation();
+  const { currentCreation, saveCurrentCreation, regenerateCurrentCreation } =
+    useCreation();
 
-  // const handleRegenerate = () => {
-  //   console.log("Regenerate creation");
-  // };
+  const handleRegenerate = () => {
+    regenerateCurrentCreation();
+  };
 
   const handleSave = async () => {
     await saveCurrentCreation();
@@ -100,14 +101,13 @@ export default function ResultScreen() {
             Edit
           </Button>
           <View style={styles.secondaryActions}>
-            {/* TODO: Implement regenerate functionality */}
-            {/* <Button
+            <Button
               mode="outlined"
               onPress={handleRegenerate}
               style={styles.secondaryButton}
             >
               Regenerate
-            </Button> */}
+            </Button>
             <Button
               mode="outlined"
               onPress={handleSave}
