@@ -1,8 +1,21 @@
 import { useCreation } from "@/src/context/CreationContext";
 import ResultScreen from "@/src/screens/ResultScreen";
 import { renderWithProviders } from "@/src/test/renderWithProviders";
+import { shareCreation } from "@/src/utils/shareCreation";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fireEvent, screen, waitFor } from "@testing-library/react-native";
 import React from "react";
+
+const mockCreation = {
+  id: "test-id",
+  title: "Midnight Echo",
+  content:
+    "Verse 1\nI found your words beneath the city rain\nA little moonlight calling out my name\n\nChorus\nWe turn the silence into something true\nA song that starts and ends with you",
+  format: "song" as const,
+  mood: "dreamy" as const,
+  prompt: "test prompt",
+  createdAt: "2024-01-01T00:00:00.000Z",
+};
 
 const mockBack = jest.fn();
 const mockReplace = jest.fn();
@@ -15,22 +28,13 @@ jest.mock("expo-router", () => ({
   }),
 }));
 
-function renderResultScreen(withCreation = true) {
-  const mockCreation = withCreation
-    ? {
-        id: "test-id",
-        title: "Midnight Echo",
-        content:
-          "Verse 1\nI found your words beneath the city rain\nA little moonlight calling out my name\n\nChorus\nWe turn the silence into something true\nA song that starts and ends with you",
-        format: "song" as const,
-        mood: "dreamy" as const,
-        prompt: "test prompt",
-        createdAt: "2024-01-01T00:00:00.000Z",
-      }
-    : null;
+jest.mock("@/src/utils/shareCreation", () => ({
+  shareCreation: jest.fn(),
+}));
 
+function renderResultScreen(withCreation = true) {
   return renderWithProviders(
-    <ResultScreenWithContext creation={mockCreation} />,
+    <ResultScreenWithContext creation={withCreation ? mockCreation : null} />,
   );
 }
 
@@ -51,6 +55,10 @@ describe("ResultScreen", () => {
     mockBack.mockClear();
     mockReplace.mockClear();
     mockPush.mockClear();
+    jest.clearAllMocks();
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
+    (AsyncStorage.setItem as jest.Mock).mockResolvedValue(undefined);
+    (shareCreation as jest.Mock).mockResolvedValue(undefined);
   });
 
   describe("when no creation exists", () => {
@@ -106,13 +114,13 @@ describe("ResultScreen", () => {
       expect(mockBack).toHaveBeenCalledTimes(1);
     });
 
-    it("should have Edit, Regenerate, and Save buttons", async () => {
+    it("should have Edit, Save, and Share buttons", async () => {
       renderResultScreen(true);
 
       await waitFor(() => {
         expect(screen.getByTestId("action-button")).toBeTruthy();
-        expect(screen.getByText("Regenerate")).toBeTruthy();
         expect(screen.getByText("Save")).toBeTruthy();
+        expect(screen.getByText("Share")).toBeTruthy();
       });
     });
 
@@ -125,6 +133,35 @@ describe("ResultScreen", () => {
       });
 
       expect(mockPush).toHaveBeenCalledWith("/edit");
+    });
+
+    it("should save the current creation when Save is pressed", async () => {
+      renderResultScreen(true);
+
+      await waitFor(() => {
+        expect(screen.getByText("Save")).toBeTruthy();
+      });
+
+      fireEvent.press(screen.getByText("Save"));
+
+      await waitFor(() => {
+        expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+          "meliqo:saved-creations",
+          JSON.stringify([mockCreation]),
+        );
+      });
+    });
+
+    it("should share the current creation when Share is pressed", async () => {
+      renderResultScreen(true);
+
+      await waitFor(() => {
+        expect(screen.getByText("Share")).toBeTruthy();
+      });
+
+      fireEvent.press(screen.getByText("Share"));
+
+      expect(shareCreation).toHaveBeenCalledWith(mockCreation);
     });
   });
 });

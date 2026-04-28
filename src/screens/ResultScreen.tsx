@@ -1,6 +1,7 @@
 import { CreationMetadata } from "@/src/components/CreationMetadata";
 import { useCreation } from "@/src/context/CreationContext";
 import { theme } from "@/src/theme/theme";
+import { shareCreation } from "@/src/utils/shareCreation";
 import { useRouter } from "expo-router";
 import { ScrollView, StyleSheet, View } from "react-native";
 import {
@@ -16,12 +17,18 @@ export default function ResultScreen() {
   const router = useRouter();
   const { currentCreation, saveCurrentCreation } = useCreation();
 
-  const handleRegenerate = () => {
-    console.log("Regenerate creation");
-  };
+  // const handleRegenerate = () => {
+  //   console.log("Regenerate creation");
+  // };
 
   const handleSave = async () => {
     await saveCurrentCreation();
+  };
+
+  const handleShare = async () => {
+    if (!currentCreation) return;
+
+    await shareCreation(currentCreation);
   };
 
   if (!currentCreation) {
@@ -93,20 +100,27 @@ export default function ResultScreen() {
             Edit
           </Button>
           <View style={styles.secondaryActions}>
-            <Button
+            {/* TODO: Implement regenerate functionality */}
+            {/* <Button
               mode="outlined"
               onPress={handleRegenerate}
               style={styles.secondaryButton}
             >
               Regenerate
-            </Button>
-
+            </Button> */}
             <Button
               mode="outlined"
               onPress={handleSave}
               style={styles.secondaryButton}
             >
               Save
+            </Button>
+            <Button
+              mode="outlined"
+              onPress={handleShare}
+              style={styles.secondaryButton}
+            >
+              Share
             </Button>
           </View>
         </View>

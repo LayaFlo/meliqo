@@ -40,7 +40,7 @@ describe("shareCreation", () => {
     expect(result).toEqual({ action: "sharedAction" });
   });
 
-  it("should use labels for different creation formats and moods", async () => {
+  it("should include the provided format and mood values", async () => {
     await shareCreation({
       ...mockCreation,
       title: "Night Verse",
